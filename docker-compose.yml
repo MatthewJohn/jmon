@@ -42,10 +42,26 @@ services:
      - database
      - broker
 
+  scheduler:
+    build:
+      context: .
+    command: celery -A server beat
+    environment:
+      DB_TYPE: db+postgresql
+      DB_USERNAME: username
+      DB_PASSWORD: password
+      DB_NAME: jmon
+      DB_PORT: 5432
+
+      BROKER_TYPE: redis
+      BROKER_USERNAME: ''
+      BROKER_PASSWORD: 'password'
+      BROKER_PORT: 6379
+      BROKER_INSTANCE: 0
+
   agent:
     build:
       context: .
-      dockerfile: Dockerfile
 
     command: celery -A jmon worker
 

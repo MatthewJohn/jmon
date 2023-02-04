@@ -4,3 +4,6 @@ selenium==4.6.1
 PyVirtualDisplay==3.0
 Pillow==9.4.0
 ImageHash==4.3.1
+celery==5.2.7
+redis==4.4.2
+SQLAlchemy==2.0.1
