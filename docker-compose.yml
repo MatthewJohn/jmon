@@ -8,62 +8,40 @@ services:
     ports:
       - 5432:5432
 
-    environment:
-      POSTGRES_USER: username
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: jmon
+    env_file:
+     - .env
 
   broker:
     image: redis:latest
 
-    command: /bin/sh -c 'redis-server --appendonly yes --requirepass password'
-    environment:
-      REDIS_PASSWORD: password
+    command: redis-server --appendonly yes --requirepass $BROKER_PASSWORD
+    env_file:
+     - .env
 
   server:
-    build:
-      context: .
-      dockerfile: Dockerfile.server
+    build: .
 
-    environment:
-      DB_TYPE: db+postgresql
-      DB_USERNAME: username
-      DB_PASSWORD: password
-      DB_NAME: jmon
-      DB_PORT: 5432
-
-      BROKER_TYPE: redis
-      BROKER_USERNAME: ''
-      BROKER_PASSWORD: 'password'
-      BROKER_PORT: 6379
-      BROKER_INSTANCE: 0
+    env_file:
+     - .env
 
     links:
      - database
      - broker
 
   scheduler:
-    build:
-      context: .
+    build: .
     command: celery -A server beat
-    environment:
-      DB_TYPE: db+postgresql
-      DB_USERNAME: username
-      DB_PASSWORD: password
-      DB_NAME: jmon
-      DB_PORT: 5432
+    env_file:
+     - .env
 
-      BROKER_TYPE: redis
-      BROKER_USERNAME: ''
-      BROKER_PASSWORD: 'password'
-      BROKER_PORT: 6379
-      BROKER_INSTANCE: 0
 
   agent:
-    build:
-      context: .
+    build: .
 
     command: celery -A jmon worker
+
+    env_file:
+     - .env
 
     links:
      - server
