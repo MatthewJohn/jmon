@@ -8,8 +8,10 @@ services:
     ports:
       - 5432:5432
 
-    env_file:
-     - .env
+    environment:
+      POSTGRES_USERNAME: $DB_USERNAME
+      POSTGRES_PASSWORD: $DB_PASSWORD
+      POSTGRES_DATABASE: $DB_NAME
 
   broker:
     image: redis:latest
@@ -30,19 +32,19 @@ services:
 
   scheduler:
     build: .
-    command: celery -A server beat
+    command: celery -A jmon.app beat
     env_file:
      - .env
-
+    links:
+     - server
+     - database
+     - broker
 
   agent:
     build: .
-
-    command: celery -A jmon worker
-
+    command: celery -A jmon.app worker --concurrency=1
     env_file:
      - .env
-
     links:
      - server
      - database
