@@ -8,3 +8,4 @@ celery==5.2.7
 redis==4.4.2
 SQLAlchemy==2.0.1
 alembic==1.9.2
+psycopg2==2.9.5
