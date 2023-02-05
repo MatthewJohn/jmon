@@ -40,6 +40,18 @@ services:
      - database
      - broker
 
+  flower:
+    build: .
+    command: celery -A jmon.app flower
+    ports:
+     - 5555:5555
+    env_file:
+     - .env
+    links:
+     - server
+     - database
+     - broker
+
   agent:
     build: .
     command: celery -A jmon.app worker --concurrency=1
