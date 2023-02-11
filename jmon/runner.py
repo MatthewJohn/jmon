@@ -42,7 +42,7 @@ class Runner:
                             raise
                         sleep(1)
 
-            for action in config.get('steps'):
+            for action in config:
                 if action.get('goto'):
                     selenium_instance.get(action.get('goto'))
 
