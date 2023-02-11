@@ -45,7 +45,7 @@ services:
 
   flower:
     build: .
-    command: celery -A jmon.app flower
+    command: celery -A jmon.app flower --host=0.0.0.0
     ports:
      - 5555:5555
     env_file:
