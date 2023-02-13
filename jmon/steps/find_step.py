@@ -15,16 +15,20 @@ class FindStep(BaseStep):
         """Return list of child support step classes"""
         return [
             FindStep,
-            ActionStep
+            ActionStep,
+            CheckStep
         ]
 
     def _execute(self, selenium_instance, element):
         """Find element on page"""
         if id := self._config.get('id'):
             logger.info(f"Finding element by id: {id}")
-            element.find_element(By.ID, id)
+            element = element.find_element(By.ID, id)
         if class_name := self._config.get('class'):
             logger.info(f"Finding element by class: {class_name}")
-            element.find_element(By.ID, class_name)
+            element = element.find_element(By.ID, class_name)
+        if tag := self._config.get('tag'):
+            logger.info(f"Finding element by tag: {tag}")
+            element = element.find_element(By.TAG_NAME, tag)
         return element
 
