@@ -22,6 +22,7 @@ class CheckStep(BaseStep):
             if check_name not in available_checks:
                 raise Exception(f'Invalid check: {check_name}')
             checks.append(available_checks[check_name](check_config))
+        return checks
 
     def get_child_steps(self):
         """Add checks to list of available child steps"""

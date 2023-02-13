@@ -22,6 +22,7 @@ class ActionStep(BaseStep):
             if action_name not in available_actions:
                 raise Exception(f'Invalid action: {action_name}')
             actions.append(available_actions[action_name](self._config[action_config]))
+        return actions
 
     def get_child_steps(self):
         """Add actions to list of available child steps"""
