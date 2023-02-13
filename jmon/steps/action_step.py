@@ -14,6 +14,11 @@ class ActionStep(BaseStep):
             for action_class in jmon.steps.actions.BaseAction.__subclasses__()
         }
 
+    @property
+    def supported_child_steps(self):
+        """Return list of child support step classes"""
+        return []
+
     def get_actions(self):
         """Get all actions"""
         available_actions = self.get_available_steps()

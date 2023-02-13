@@ -9,9 +9,14 @@ from jmon.logger import logger
 class FindStep(BaseStep):
 
     CONFIG_KEY = "find"
-    SUPPORTED_CHILD_STEPS = [
-        ActionStep
-    ]
+
+    @property
+    def supported_child_steps(self):
+        """Return list of child support step classes"""
+        return [
+            FindStep,
+            ActionStep
+        ]
 
     def _execute(self, selenium_instance, element):
         """Find element on page"""

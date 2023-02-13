@@ -6,7 +6,11 @@ from jmon.logger import logger
 class GotoStep(BaseStep):
 
     CONFIG_KEY = "goto"
-    SUPPORTED_CHILD_STEPS = []
+
+    @property
+    def supported_child_steps(self):
+        """Return list of child support step classes"""
+        return []
 
     def _execute(self, selenium_instance, element):
         """Goto URL"""

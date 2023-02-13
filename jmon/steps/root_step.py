@@ -10,12 +10,16 @@ from jmon.steps.action_step import ActionStep
 
 class RootStep(BaseStep):
 
-    SUPPORTED_CHILD_STEPS = [
-        GotoStep,
-        FindStep,
-        CheckStep,
-        ActionStep
-    ]
+    @property
+    def supported_child_steps(self):
+        """Return list of child support step classes"""
+        return [
+            GotoStep,
+            FindStep,
+            CheckStep,
+            ActionStep
+        ]
+
 
 
     def _execute(self, selenium_instance, element):

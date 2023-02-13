@@ -5,7 +5,6 @@ from jmon.logger import logger
 
 class BaseStep:
 
-    SUPPORTED_CHILD_STEPS = []
     CONFIG_KEY = None
 
     def __init__(self, config):
@@ -25,13 +24,16 @@ class BaseStep:
                     )
         return steps
 
+    @property
+    def supported_child_steps(self):
+        """Return list of child support step classes"""
+        raise NotImplementedError
+
     def get_supported_child_steps(self):
         """Get dictionary of supported child steps"""
-        if self.SUPPORTED_CHILD_STEPS is None:
-            raise NotImplementedError
         return {
             child_step.CONFIG_KEY: child_step
-            for child_step in self.SUPPORTED_CHILD_STEPS
+            for child_step in self.supported_child_steps
         }
 
     def _execute(self, selenium_instance, element):
