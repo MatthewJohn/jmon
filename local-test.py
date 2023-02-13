@@ -7,7 +7,7 @@ from jmon.runner import Runner
 
 
 with open(sys.argv[1], "r") as fh:
-    config = yaml.load(fh, yaml.FullLoader)
+    config = yaml.safe_load(fh)
 
 check_runner = Runner()
 print(config)

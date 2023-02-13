@@ -10,7 +10,9 @@ RUN apt-get update && \
         xvfb firefox firefox-geckodriver && \
     apt-get clean all
 
+RUN apt-get update && apt-get install --assume-yes libpq-dev gcc && apt-get clean all
 
+WORKDIR /app
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
