@@ -42,7 +42,7 @@ class FindStep(BaseStep):
 
         elif class_name := self._config.get('class'):
             logger.info(f"Finding element by class: {class_name}")
-            element = element.find_element(By.ID, class_name)
+            element = element.find_element(By.CLASS_NAME, class_name)
         elif tag := self._config.get('tag'):
             logger.info(f"Finding element by tag: {tag}")
             element = element.find_element(By.TAG_NAME, tag)
