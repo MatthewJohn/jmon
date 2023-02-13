@@ -20,19 +20,42 @@ services:
     env_file:
      - .env
 
+  dbupgrade:
+    build: .
+    command: alembic upgrade head
+    env_file:
+     - .env
+    links:
+     - database
+
   server:
     build: .
 
+    command: python3 -u ./server.py
     env_file:
      - .env
 
+    ports:
+     - 5000:5000
     links:
      - database
      - broker
 
   scheduler:
     build: .
-    command: celery -A jmon.app beat
+    command: celery -A jmon.scheduler.app beat -S redbeat.RedBeatScheduler
+    env_file:
+     - .env
+    links:
+     - server
+     - database
+     - broker
+
+  flower:
+    build: .
+    command: celery -A jmon.app flower --host=0.0.0.0
+    ports:
+     - 5555:5555
     env_file:
      - .env
     links:
@@ -42,7 +65,7 @@ services:
 
   agent:
     build: .
-    command: celery -A jmon.app worker --concurrency=1
+    command: celery -A jmon.worker.app worker --concurrency=1
     env_file:
      - .env
     links:

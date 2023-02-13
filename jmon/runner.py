@@ -11,6 +11,7 @@ class Runner:
     def perform_check(self, config):
         display_instance = Display(visible=0, size=(1920, 1080))
         display_instance.start()
+
         selenium_instance = selenium.webdriver.Firefox()
         selenium_instance.delete_all_cookies()
         selenium_instance.implicitly_wait(1)
@@ -42,7 +43,7 @@ class Runner:
                             raise
                         sleep(1)
 
-            for action in config.get('steps'):
+            for action in config:
                 if action.get('goto'):
                     selenium_instance.get(action.get('goto'))
 
