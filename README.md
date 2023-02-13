@@ -10,24 +10,24 @@ docker-compose up -d
 curl -XPOST localhost:5000/api/v1/check -H 'Content-Type: application/yml' -d '
 name: Test1
 steps:
-  # Check homepage
-  - goto: https://en.wikipedia.org/wiki/Main_Page
+  # Goto Homepage
+  - goto: https://www.w3schools.com/default.asp
   - check:
-      title: Wikipedia, the free encyclopedia
-  # Perform search
+      title: W3Schools Online Web Tutorials
+  # Accept cookies
   - find:
-      id: searchform
-      find:
-        tag: input
-        actions:
-         - type: Pabalonium
-         - press: enter
+      id: accept-choices
+      actions:
+       - click
+
+  # Use search to find python
+  - find:
+      id: search2
+      actions:
+        - type: Pabalonium
+        - press: enter
   - check:
-      url: "https://en.wikipedia.org/w/index.php?search=Pabalonium&title=Special%3ASearch&ns0=1"
-  - find:
-      class: mw-search-nonefound
-      check:
-        - text: There were no results matching the query.
+      url: "https://www.w3schools.com/python/default.asp"
 
 '
 ```
