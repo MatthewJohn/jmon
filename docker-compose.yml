@@ -20,6 +20,14 @@ services:
     env_file:
      - .env
 
+  dbupgrade:
+    build: .
+    command: alembic upgrade head
+    env_file:
+     - .env
+    links:
+     - database
+
   server:
     build: .
 
