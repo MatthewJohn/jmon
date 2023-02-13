@@ -10,7 +10,7 @@ class PressAction(BaseAction):
     CONFIG_KEY = "press"
 
     def _execute(self, selenium_instance, element):
-        """Type text"""
+        """Press keyboard key"""
         if self._config.lower() == "enter":
 
             logger.info(f"Pressing enter")
