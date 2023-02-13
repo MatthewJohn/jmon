@@ -21,15 +21,11 @@ class BaseStep:
 
         supported_child_steps = self.get_supported_child_steps()
 
-        print(self.__class__.__name__)
-        print(self._config)
         # Handle lists of steps
         if type(self._config) is list:
             for step_config in self._config:
                 for supported_step_name, supported_step_class in supported_child_steps.items():
                     if supported_step_name in step_config:
-                        print(supported_step_name)
-                        logger.info(f"Adding child step: {supported_step_name}: {step_config[supported_step_name]}")
                         steps.append(
                             supported_step_class(step_config[supported_step_name])
                         )
@@ -38,7 +34,6 @@ class BaseStep:
         elif type(self._config) is dict:
             for step_name in self._config:
                 if step_name in supported_child_steps:
-                    logger.info(f"Adding child step: {step_name}: {self._config[step_name]}")
                     steps.append(supported_child_steps[step_name](self._config[step_name]))
 
         return steps

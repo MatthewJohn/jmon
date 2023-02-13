@@ -29,7 +29,6 @@ class CheckStep(BaseStep):
 
         for action_name in self._config:
             if action_name in supported_actions:
-                logger.info(f"Adding child step: {action_name}: {self._config[action_name]}")
                 steps.append(
                     supported_actions[action_name](self._config[action_name])
                 )
