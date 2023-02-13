@@ -12,7 +12,7 @@ class Config:
     DATABASE_PASSWORD = os.environ.get("DB_PASSWORD")
     DATABASE_NAME = os.environ.get("DB_NAME")
 
-    DEFAULT_CHECK_INTERVAL = float(os.environ.get('DEFAULT_CHECK_INTERVAL', '0.5'))
+    DEFAULT_CHECK_INTERVAL = float(os.environ.get('DEFAULT_CHECK_INTERVAL', '5.0'))
 
     @property
     def DATABASE_URL(self):
