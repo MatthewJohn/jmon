@@ -52,6 +52,6 @@ steps:
   - find:
       class: mw-search-nonefound
       check:
-        - text: There were no results matching the query.
+        text: There were no results matching the query.
 '
 ```
