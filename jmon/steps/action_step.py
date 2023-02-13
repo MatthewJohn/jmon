@@ -20,7 +20,7 @@ class ActionStep(BaseStep):
         actions = []
         for action_name, action_config in self._config.items():
             if action_name not in available_actions:
-                raise Exception(f'Invalid action: {action_name}')
+                raise Exception(f'Invalid action: {action_name}. Available actions: {[c for c in available_actions]}')
             actions.append(available_actions[action_name](self._config[action_config]))
         return actions
 

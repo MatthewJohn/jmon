@@ -20,7 +20,7 @@ class CheckStep(BaseStep):
         checks = []
         for check_name, check_config in self._config.items():
             if check_name not in available_checks:
-                raise Exception(f'Invalid check: {check_name}')
+                raise Exception(f'Invalid check: {check_name}. Available checks: {[c for c in available_checks]}')
             checks.append(available_checks[check_name](check_config))
         return checks
 
