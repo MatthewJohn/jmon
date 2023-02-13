@@ -1,8 +1,11 @@
 
 
+from jmon.logger import logger
+
+
 class BaseStep:
 
-    SUPPORTED_CHILD_STEPS = None
+    SUPPORTED_CHILD_STEPS = []
     CONFIG_KEY = None
 
     def __init__(self, config):
@@ -11,11 +14,13 @@ class BaseStep:
     def get_child_steps(self):
         """Get child steps"""
         steps = []
-        for supported_step_name, supported_step_class in self.get_supported_child_steps().items():
-            if supported_step_name in self._config:
-                steps.append(
-                    supported_step_class(self._config[supported_step_name])
-                )
+        for step_config in self._config:
+            for supported_step_name, supported_step_class in self.get_supported_child_steps().items():
+                if supported_step_name in step_config:
+                    logger.info(f"Adding child step: {supported_step_name}: {step_config[supported_step_name]}")
+                    steps.append(
+                        supported_step_class(step_config[supported_step_name])
+                    )
         return steps
 
     def get_supported_child_steps(self):
@@ -23,13 +28,17 @@ class BaseStep:
         if self.SUPPORTED_CHILD_STEPS is None:
             raise NotImplementedError
         return {
-            child_step.config_key: child_step
+            child_step.CONFIG_KEY: child_step
             for child_step in self.SUPPORTED_CHILD_STEPS
         }
 
-    @property
-    def config_key(self):
-        """Return key of step type in config"""
-        if self.CONFIG_KEY is None:
-            raise NotImplementedError
-        return self.CONFIG_KEY
+    def _execute(self, selenium_instance, element):
+        """Execute step"""
+        raise NotImplementedError
+
+    def execute(self, selenium_instance, element):
+        """Execute the current step and then execute each of the child steps"""
+        element = self._execute(selenium_instance, element)
+        for step in self.get_child_steps():
+            element = step.execute(selenium_instance, element)
+        return element

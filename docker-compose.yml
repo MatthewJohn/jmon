@@ -65,7 +65,7 @@ services:
 
   agent:
     build: .
-    command: celery -A jmon.worker.app worker --concurrency=1
+    command: celery -A jmon.worker.app worker --concurrency=1 --loglevel=INFO
     env_file:
      - .env
     links:
