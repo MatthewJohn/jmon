@@ -6,6 +6,7 @@ from celery import Celery
 import redis
 from redbeat.schedulers import RedBeatConfig
 
+from jmon.logger import logger
 from jmon.runner import Runner
 import jmon.models
 
@@ -20,3 +21,5 @@ app = Celery(
 
 # Setup default redbeat config
 app.redbeat_conf = RedBeatConfig(app=app)
+
+logger.info("Imported jmon")
