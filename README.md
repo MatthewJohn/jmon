@@ -18,10 +18,10 @@ steps:
   - find:
       id: searchform
       find:
-        element: input
+        tag: input
         actions:
-        - type: Pabalonium
-        - press: enter
+         - type: Pabalonium
+         - press: enter
   - check:
       url: "https://en.wikipedia.org/w/index.php?search=Pabalonium&title=Special%3ASearch&ns0=1"
   - find:

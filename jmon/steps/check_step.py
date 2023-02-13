@@ -1,33 +1,38 @@
 
 from jmon.steps.base_step import BaseStep
 import jmon.steps.checks
+from jmon.logger import logger
+
 
 class CheckStep(BaseStep):
 
     CONFIG_KEY = "check"
-    SUPPORTED_CHILD_STEPS = []
 
-    @classmethod
-    def get_available_steps(cls):
-        return {
-            check_class.CHECK_NAME: check_class
-            for check_class in jmon.steps.checks.BaseCheck.__subclasses__()
-        }
-
-    def get_checks(self):
-        """Get all checks"""
-        available_checks = self.get_available_steps()
-        checks = []
-        for check_name, check_config in self._config.items():
-            if check_name not in available_checks:
-                raise Exception(f'Invalid check: {check_name}. Available checks: {[c for c in available_checks]}')
-            checks.append(available_checks[check_name](check_config))
-        return checks
+    @property
+    def supported_child_steps(self):
+        """Return list of child support step classes"""
+        return jmon.steps.checks.BaseCheck.__subclasses__()
 
     def get_child_steps(self):
-        """Add checks to list of available child steps"""
-        steps = super().get_child_steps()
-        steps.extend(self.get_checks())
+        """
+        Get child steps
+
+        Support checks such as:
+        - check:
+            title: An example website
+            response_code: 200
+            url: https://www.example.com
+        """
+        steps = []
+
+        supported_actions = self.get_supported_child_steps()
+
+        for action_name in self._config:
+            if action_name in supported_actions:
+                logger.info(f"Adding child step: {action_name}: {self._config[action_name]}")
+                steps.append(
+                    supported_actions[action_name](self._config[action_name])
+                )
         return steps
 
     def _execute(self, selenium_instance, element):

@@ -6,7 +6,7 @@ from jmon.logger import logger
 
 class ClickAction(BaseAction):
 
-    ACTION_NAME = "click"
+    CONFIG_KEY = "click"
 
     def _execute(self, selenium_instance, element):
         """Click mouse"""

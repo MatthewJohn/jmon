@@ -7,7 +7,7 @@ from jmon.logger import logger
 
 class PressAction(BaseAction):
 
-    ACTION_NAME = "press"
+    CONFIG_KEY = "press"
 
     def _execute(self, selenium_instance, element):
         """Type text"""

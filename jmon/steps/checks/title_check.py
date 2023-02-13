@@ -6,7 +6,7 @@ from jmon.logger import logger
 
 class TitleCheck(BaseCheck):
 
-    CHECK_NAME = "title"
+    CONFIG_KEY = "title"
 
     def _execute(self, selenium_instance, element):
         """Check page title"""

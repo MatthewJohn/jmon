@@ -5,7 +5,7 @@ from jmon.logger import logger
 
 class UrlCheck(BaseCheck):
 
-    CHECK_NAME = "url"
+    CONFIG_KEY = "url"
 
     def _execute(self, selenium_instance, element):
         """Check page URL"""

@@ -6,7 +6,7 @@ from jmon.logger import logger
 
 class ResponseCheck(BaseCheck):
 
-    CHECK_NAME = "response"
+    CONFIG_KEY = "response"
 
     def _execute(self, selenium_instance, element):
         """Check response code"""

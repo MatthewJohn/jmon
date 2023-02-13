@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 from jmon.steps.action_step import ActionStep
 from jmon.steps.base_step import BaseStep
 from jmon.logger import logger
+from jmon.steps.check_step import CheckStep
 
 
 class FindStep(BaseStep):

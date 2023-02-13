@@ -6,7 +6,7 @@ from jmon.logger import logger
 
 class TypeAction(BaseAction):
 
-    ACTION_NAME = "type"
+    CONFIG_KEY = "type"
 
     def _execute(self, selenium_instance, element):
         """Type text"""
