@@ -59,5 +59,5 @@ class BaseStep:
         """Execute the current step and then execute each of the child steps"""
         element = self._execute(selenium_instance, element)
         for step in self.get_child_steps():
-            element = step.execute(selenium_instance, element)
+            step.execute(selenium_instance, element)
         return element
