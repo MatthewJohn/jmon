@@ -43,7 +43,7 @@ services:
 
   scheduler:
     build: .
-    command: celery -A jmon.scheduler.app beat
+    command: celery -A jmon.scheduler.app beat -S redbeat.RedBeatScheduler
     env_file:
      - .env
     links:
@@ -65,7 +65,7 @@ services:
 
   agent:
     build: .
-    command: celery -A jmon.app worker --concurrency=1
+    command: celery -A jmon.worker.app worker --concurrency=1
     env_file:
      - .env
     links:

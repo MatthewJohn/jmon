@@ -1,15 +1,17 @@
 
 
 from time import sleep
-from jmon import app, perform_check
+from jmon import app
 import jmon.config
 import jmon.models
 
-existing_checks = []
 
-@app.on_after_configure.connect
-def schedule_periodic_tasks(sender, **kwargs):
-    checks = jmon.models.Check.query.all()
-    for check in checks:
-        existing_checks.append(check.name)
-        sender.add_periodic_task(jmon.config.Config.get().DEFAULT_CHECK_INTERVAL, perform_check.s(check.name))
+# Setup beat schedules
+app.conf.beat_schedule = {
+    # Update check schedules
+    'update_check_schedules': {
+        'task': 'jmon.tasks.update_check_schedules.update_check_schedules',
+        'schedule': 30.0,
+        'args': []
+    },
+}

@@ -12,3 +12,4 @@ psycopg2==2.9.5
 Flask==2.2.2
 PyYAML==6.0
 flower==1.2.0
+celery-redbeat==2.0.0

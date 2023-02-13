@@ -4,6 +4,7 @@ from time import sleep
 
 from celery import Celery
 import redis
+from redbeat.schedulers import RedBeatConfig
 
 from jmon.runner import Runner
 import jmon.models
@@ -17,15 +18,5 @@ app = Celery(
     broker=broker_url
 )
 
-
-@app.task()
-def perform_check(check_name):
-    # Get config for check
-    check = jmon.models.Check.query.filter(jmon.models.Check.name==check_name).first()
-    if not check:
-        raise Exception("Could not find check")
-
-    runner = Runner()
-    runner.perform_check(check.steps)
-    # print("PRetending", config)
-    return True
+# Setup default redbeat config
+app.redbeat_conf = RedBeatConfig(app=app)
