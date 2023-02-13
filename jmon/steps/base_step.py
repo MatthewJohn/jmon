@@ -9,6 +9,8 @@ class BaseStep:
     CONFIG_KEY = None
 
     def __init__(self, config):
+        """Store member variables"""
+        logger.info(f"Creating step: {self.__name__}: {config}")
         self._config = config
 
     def get_child_steps(self):
