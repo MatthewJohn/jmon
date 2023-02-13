@@ -30,12 +30,10 @@ class ActionStep(BaseStep):
             if type(action_config) is dict:
                 for action_name in action_config:
                     if action_name in supported_actions:
-                        logger.info(f"Adding child step: {action_name}: {action_config[action_name]}")
                         steps.append(
                             supported_actions[action_name](action_config[action_name])
                         )
             elif type(action_config) is str:
-                logger.info(f"Adding child step: {action_config}: None")
                 steps.append(
                     supported_actions[action_config](None)
                 )
