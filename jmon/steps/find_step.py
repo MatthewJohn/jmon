@@ -27,10 +27,23 @@ class FindStep(BaseStep):
         if id := self._config.get('id'):
             logger.info(f"Finding element by id: {id}")
             element = element.find_element(By.ID, id)
-        if class_name := self._config.get('class'):
+        elif (text := self._config.get('text')) or (placeholder := self._config.get('placeholder')):
+            if text:
+                xpath_key = 'text'
+                xpath_value = text
+            elif placeholder:
+                xpath_key = 'placeholder'
+                xpath_value = placeholder
+            tag = self._config.get('tag')
+            if not tag:
+                tag = '*'
+            # Search by XPATH
+            element = element.find_element(By.XPATH, f"//{tag}[@{xpath_key}='{xpath_value}']")
+
+        elif class_name := self._config.get('class'):
             logger.info(f"Finding element by class: {class_name}")
             element = element.find_element(By.ID, class_name)
-        if tag := self._config.get('tag'):
+        elif tag := self._config.get('tag'):
             logger.info(f"Finding element by tag: {tag}")
             element = element.find_element(By.TAG_NAME, tag)
         return element
