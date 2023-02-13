@@ -1,12 +1,14 @@
 
 from jmon.steps.checks.base_check import BaseCheck
 from jmon.logger import logger
+from jmon.utils import retry
 
 
 class UrlCheck(BaseCheck):
 
     CONFIG_KEY = "url"
 
+    @retry(count=5, interval=0.5)
     def _execute(self, selenium_instance, element):
         """Check page URL"""
         logger.info("Checking page URL")

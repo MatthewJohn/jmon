@@ -5,6 +5,7 @@ from jmon.steps.action_step import ActionStep
 from jmon.steps.base_step import BaseStep
 from jmon.logger import logger
 from jmon.steps.check_step import CheckStep
+from jmon.utils import retry
 
 
 class FindStep(BaseStep):
@@ -20,6 +21,7 @@ class FindStep(BaseStep):
             CheckStep
         ]
 
+    @retry(count=5, interval=0.5)
     def _execute(self, selenium_instance, element):
         """Find element on page"""
         if id := self._config.get('id'):
