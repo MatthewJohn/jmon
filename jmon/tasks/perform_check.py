@@ -2,6 +2,7 @@
 import jmon.models
 from jmon.run import Run
 from jmon.runner import Runner
+from jmon.logger import logger
 
 
 def perform_check(check_name):
@@ -16,6 +17,9 @@ def perform_check(check_name):
 
     try:
         runner.perform_check(run)
+    except Exception as exc:
+        logger.error(f"An error occured: {exc}")
+        raise
     finally:
         run.end()
 
