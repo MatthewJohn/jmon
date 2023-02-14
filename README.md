@@ -10,6 +10,7 @@ It can currently:
  * Checks can:
    * Goto URL
    * Check title/url/element text
+   * Click on elements, send text and press enter
    * Find elements by ID/class/tag/placeholder/text
 
 For a list of upcoming features and issues being worked on, please see https://gitlab.dockstudios.co.uk/mjc/jmon/-/issues
