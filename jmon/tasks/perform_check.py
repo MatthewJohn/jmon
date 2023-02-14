@@ -1,6 +1,8 @@
 
 import jmon.models
+from jmon.run import Run
 from jmon.runner import Runner
+from jmon.logger import logger
 
 
 def perform_check(check_name):
@@ -9,6 +11,18 @@ def perform_check(check_name):
     if not check:
         raise Exception("Could not find check")
 
+    run = Run(check)
+
     runner = Runner()
-    runner.perform_check(check.steps)
+
+    success = False
+    try:
+        runner.perform_check(run=run)
+        success = True
+    except Exception as exc:
+        logger.error(f"An error occured: {exc}")
+        raise
+    finally:
+        run.end(status=success)
+
     return True
