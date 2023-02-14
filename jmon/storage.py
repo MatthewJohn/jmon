@@ -15,11 +15,10 @@ class Storage:
             s3_kwargs['config'] = boto3.session.Config(signature_version='s3v4')
         self._s3 = boto3.client('s3', **s3_kwargs)
 
-    def upload_log(self, run):
+    def upload_file(self, path, content):
         """Upload log to s3"""
-
         self._s3.put_object(
             Bucket=jmon.config.Config.get().AWS_BUCKET_NAME,
-            Key=f"{run.get_artifact_key()}/artifact.log",
-            Body=run.read_log_stream()
+            Key=path,
+            Body=content
         )

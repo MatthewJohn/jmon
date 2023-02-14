@@ -2,7 +2,6 @@
 import jmon.models
 from jmon.run import Run
 from jmon.runner import Runner
-from jmon.storage import Storage
 
 
 def perform_check(check_name):
@@ -19,8 +18,5 @@ def perform_check(check_name):
         runner.perform_check(run)
     finally:
         run.end()
-        storage = Storage()
-        storage.upload_log(run)
-
 
     return True

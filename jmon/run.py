@@ -5,6 +5,7 @@ from io import StringIO
 import logging
 
 from jmon.logger import logger
+from jmon.storage import Storage
 
 
 class Run:
@@ -27,8 +28,12 @@ class Run:
         return self._check
 
     def end(self):
-        """End logging and tidy"""
+        """End logging and upload"""
         logger.removeHandler(self._log_handler)
+
+        # Upload to storage
+        storage = Storage()
+        storage.upload_file(f"{self.get_artifact_key()}/artifact.log", self.read_log_stream())
 
     def get_artifact_key(self):
         """Return key for run"""
