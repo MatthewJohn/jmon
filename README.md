@@ -8,9 +8,9 @@ It can currently:
  * Register checks
  * Perform checks across agents
  * Checks can:
- ** Goto URL
- ** Check title/url/element text
- ** Find elements by ID/class/tag/placeholder/text
+   * Goto URL
+   * Check title/url/element text
+   * Find elements by ID/class/tag/placeholder/text
 
 For a list of upcoming features and issues being worked on, please see https://gitlab.dockstudios.co.uk/mjc/jmon/-/issues
 
