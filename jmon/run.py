@@ -27,13 +27,14 @@ class Run:
         """Return check"""
         return self._check
 
-    def end(self):
+    def end(self, status):
         """End logging and upload"""
         logger.removeHandler(self._log_handler)
 
         # Upload to storage
         storage = Storage()
         storage.upload_file(f"{self.get_artifact_key()}/artifact.log", self.read_log_stream())
+        storage.upload_file(f"{self.get_artifact_key()}/status", str(status))
 
     def get_artifact_key(self):
         """Return key for run"""

@@ -15,12 +15,14 @@ def perform_check(check_name):
 
     runner = Runner()
 
+    success = False
     try:
-        runner.perform_check(run)
+        runner.perform_check(run=run)
+        success = True
     except Exception as exc:
         logger.error(f"An error occured: {exc}")
         raise
     finally:
-        run.end()
+        run.end(status=success)
 
     return True
