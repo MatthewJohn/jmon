@@ -11,7 +11,7 @@ app.conf.beat_schedule = {
     # Update check schedules
     'update_check_schedules': {
         'task': 'jmon.tasks.update_check_schedules.update_check_schedules',
-        'schedule': 30.0,
+        'schedule': 120.0,
         'args': []
     },
 }

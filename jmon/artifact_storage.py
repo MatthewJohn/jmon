@@ -5,7 +5,7 @@ import boto3.session
 import jmon.config
 
 
-class Storage:
+class ArtifactStorage:
 
     def __init__(self):
         """Create client"""
