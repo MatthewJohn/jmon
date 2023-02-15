@@ -10,7 +10,7 @@
                             <tr>
                                 <td>${check}</td>
                                 <td></td>
-                                <td>${check_result.average_success}%</td>
+                                <td>${(check_result.average_success * 100).toPrecision(2)}%</td>
                             </tr>
                         `);
                     });
