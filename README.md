@@ -21,9 +21,6 @@ For a list of upcoming features and issues being worked on, please see https://g
 # Startup
 docker-compose up -d
 
-# Create s3 bucket in minio
-docker-compose exec minio mc mb jmon-results
-
 # Add check for W3Schools
 curl -XPOST localhost:5000/api/v1/checks -H 'Content-Type: application/yml' -d '
 name: Check_W3Schools
