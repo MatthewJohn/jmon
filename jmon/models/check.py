@@ -50,6 +50,7 @@ class Check(jmon.database.Base):
 
             instance.steps = steps
             instance.screenshot_on_error = content.get("screenshot_on_error")
+            instance.interval = int(content.get("interval", 0))
 
             session.add(instance)
             session.commit()
@@ -62,6 +63,7 @@ class Check(jmon.database.Base):
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
     name = sqlalchemy.Column(jmon.database.Database.GeneralString, primary_key=True)
     screenshot_on_error = sqlalchemy.Column(sqlalchemy.Boolean)
+    interval = sqlalchemy.Column(sqlalchemy.Integer)
     _steps = sqlalchemy.Column(jmon.database.Database.LargeString, name="steps")
 
     @property
@@ -83,3 +85,13 @@ class Check(jmon.database.Base):
 
         # Return default config for whether to screenshot on failure
         return jmon.config.Config.get().SCREENSHOT_ON_FAILURE_DEFAULT
+
+    def get_interval(self):
+        """Return interval of check, based on custom definition, global min/max and default interval"""
+        config = jmon.config.Config.get()
+        # If the interval has been set on the check
+        if self.interval != 0:
+            return max(min(self.interval, config.MAX_CHECK_INTERVAL), config.MIN_CHECK_INTERVAL)
+
+        # Return default check interval
+        return config.DEFAULT_CHECK_INTERVAL
