@@ -70,6 +70,9 @@ steps:
 '
 ```
 
+Goto http://localhost:5000 to view dashboard
+
 Goto http://localhost:5555 to view the celary tasks.
 
+Goto http://localhost:9001 to view minio for s3 bucket, logging in with AWS credentials from .env
 
