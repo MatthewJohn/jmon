@@ -70,6 +70,8 @@ steps:
       class: mw-search-nonefound
       check:
         text: There were no results matching the query.
+  - actions:
+    - screenshot: Homepage
 '
 ```
 
