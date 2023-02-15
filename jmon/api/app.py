@@ -4,7 +4,7 @@ from flask import Flask, send_file
 
 class FlaskApp:
 
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder=os.path.join('..', 'static'))
 
     @app.route('/')
     def serve_index():

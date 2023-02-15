@@ -1,11 +1,19 @@
 <html>
     <head>
+        <link rel="stylesheet" href="/static/css/pico.min.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
         <script>
             $.get('/api/v1/checks').then((checks) => {
                 checks.forEach((check) => {
-                    $.get(`/api/v1/checks/${check}/results`)
-                    $('#check-table-body').append(`<tr><td>${check}</td></tr>`);
+                    $.get(`/api/v1/checks/${check}/results`).then((check_result) => {
+                        $('#check-table-body').append(`
+                            <tr>
+                                <td>${check}</td>
+                                <td></td>
+                                <td>${check_result.average_success}%</td>
+                            </tr>
+                        `);
+                    });
                 })
             })
         </script>
