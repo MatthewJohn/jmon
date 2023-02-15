@@ -2,9 +2,18 @@
 import os
 from flask import Flask, send_file
 
+from jmon.database import Database
+
+
 class FlaskApp:
 
     app = Flask(__name__, static_folder=os.path.join('..', 'static'))
+
+    @app.teardown_request
+    def teardown(request):
+        """Handle request teardown"""
+        # Close DB session
+        Database().get_session().close()
 
     @app.route('/')
     def serve_index():
