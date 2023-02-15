@@ -7,10 +7,11 @@ class BaseStep:
 
     CONFIG_KEY = None
 
-    def __init__(self, config):
+    def __init__(self, run, config):
         """Store member variables"""
         logger.info(f"Creating step: {self.__class__.__name__}: {config}")
         self._config = config
+        self._run = run
 
     def get_child_steps(self):
         """Get child steps"""
@@ -27,14 +28,18 @@ class BaseStep:
                 for supported_step_name, supported_step_class in supported_child_steps.items():
                     if supported_step_name in step_config:
                         steps.append(
-                            supported_step_class(step_config[supported_step_name])
+                            supported_step_class(
+                                run=self._run,
+                                config=step_config[supported_step_name])
                         )
 
         # Handle check dictionaries
         elif type(self._config) is dict:
             for step_name in self._config:
                 if step_name in supported_child_steps:
-                    steps.append(supported_child_steps[step_name](self._config[step_name]))
+                    steps.append(supported_child_steps[step_name](
+                        run=self._run,
+                        config=self._config[step_name]))
 
         return steps
 

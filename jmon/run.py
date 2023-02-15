@@ -3,6 +3,7 @@
 import datetime
 from io import StringIO
 import logging
+import os
 
 from jmon.logger import logger
 from jmon.artifact_storage import ArtifactStorage
@@ -17,6 +18,7 @@ class Run:
         self._start_date = datetime.datetime.now()
 
         self._success = None
+        self._artifact_paths = []
 
         self._log_stream = StringIO()
         self._log_handler = logging.StreamHandler(self._log_stream)
@@ -35,6 +37,10 @@ class Run:
         """Return success status"""
         return self._success
 
+    def register_artifact(self, path):
+        """Register artifact to be uploaded to artifact storage"""
+        self._artifact_paths.append(path)
+
     def end(self, success):
         """End logging and upload"""
         self._success = success
@@ -43,8 +49,11 @@ class Run:
 
         # Upload to storage
         artifact_storage = ArtifactStorage()
-        artifact_storage.upload_file(f"{self.get_artifact_key()}/artifact.log", self.read_log_stream())
-        artifact_storage.upload_file(f"{self.get_artifact_key()}/status", str(self.success))
+        artifact_storage.upload_file(f"{self.get_artifact_key()}/artifact.log", content=self.read_log_stream())
+        artifact_storage.upload_file(f"{self.get_artifact_key()}/status", content=str(self.success))
+        for artifact_path in self._artifact_paths:
+            _, artifact_name = os.path.split(artifact_path)
+            artifact_storage.upload_file(f"{self.get_artifact_key()}/{artifact_name}", source_path=artifact_path)
 
         # Create metrics
         result_database = ResultDatabase()

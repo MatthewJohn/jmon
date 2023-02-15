@@ -19,7 +19,7 @@ class Runner:
         selenium_instance.implicitly_wait(1)
 
         try:
-            root_step = RootStep(run.check.steps)
+            root_step = RootStep(run=run, config=run.check.steps)
             root_step.execute(
                 selenium_instance=selenium_instance,
                 element=selenium_instance

@@ -31,11 +31,13 @@ class ActionStep(BaseStep):
                 for action_name in action_config:
                     if action_name in supported_actions:
                         steps.append(
-                            supported_actions[action_name](action_config[action_name])
+                            supported_actions[action_name](
+                                run=self._run,
+                                config=action_config[action_name])
                         )
             elif type(action_config) is str:
                 steps.append(
-                    supported_actions[action_config](None)
+                    supported_actions[action_config](run=self._run, config=None)
                 )
         return steps
 
