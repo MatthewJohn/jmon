@@ -86,6 +86,10 @@ class Check(jmon.database.Base):
         # Return default config for whether to screenshot on failure
         return jmon.config.Config.get().SCREENSHOT_ON_FAILURE_DEFAULT
 
+    def get_result_key(self):
+        """Get redis key prefix for results."""
+        return f"jmon_run_result_{self.name}_"
+
     def get_interval(self):
         """Return interval of check, based on custom definition, global min/max and default interval"""
         config = jmon.config.Config.get()

@@ -7,7 +7,7 @@ import os
 
 from jmon.logger import logger
 from jmon.artifact_storage import ArtifactStorage
-from jmon.result_database import ResultMetricAverageSuccessRate, ResultDatabase, ResultMetricLatestStatus
+from jmon.result_database import ResultMetricAverageSuccessRate, ResultDatabase, ResultMetricLatestStatus, ResultRegisterResult
 
 
 class Run:
@@ -61,10 +61,16 @@ class Run:
         average_success_metric.write(result_database=result_database, run=self)
         latest_status_metric = ResultMetricLatestStatus()
         latest_status_metric.write(result_database=result_database, run=self)
+        run_register = ResultRegisterResult()
+        run_register.write(result_database=result_database, run=self)
+
+    def get_run_key(self):
+        """Return datetime key for run"""
+        return self._start_date.strftime('%Y-%m-%d_%H-%M-%S')
 
     def get_artifact_key(self):
         """Return key for run"""
-        return f"{self._check.name}/{self._start_date.strftime('%Y-%m-%d_%H-%M-%S')}"
+        return f"{self._check.name}/{self.get_run_key()}"
 
     def read_log_stream(self):
         """Return data from logstream"""

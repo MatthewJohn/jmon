@@ -76,6 +76,46 @@ class ResultMetricLatestStatus(ResultMetric):
         return None
 
 
+class ResultRegisterResult(ResultMetric):
+    """Value to register check with result for reference in UI"""
+
+    def _get_name(self, run):
+        """Get name of metric"""
+        return f"{run.check.get_result_key()}{run.get_run_key()}"
+
+    def write(self, result_database, run):
+        """Write result to redis"""
+        result_database.connection.set(
+            self._get_name(run),
+            1 if run.success else 0
+        )
+
+        # Add expiration to key
+        result_database.connection.expire(
+            self._get_name(run),
+            jmon.config.Config.get().UI_RESULT_EXPIRE
+        )
+
+    def read(self, result_database, run):
+        """Get latest check result status"""
+        return result_database.connection.get(self._get_name(run))
+
+    def get_all_runs_by_check(self, result_database, check):
+        """Get all runs for check"""
+        result_key = check.get_result_key()
+        return sorted([
+            key.decode('utf-8').replace(result_key, '')
+            for key in result_database.connection.scan_iter(f"{result_key}*")
+        ])
+
+    def get_latest_run(self, result_database, check):
+        """Get latest run for check"""
+        runs = self.get_all_runs_by_check(result_database=result_database, run=check)
+        if runs:
+            return runs[-1]
+        return None
+
+
 class ResultDatabase:
 
     def __init__(self):
