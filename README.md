@@ -52,6 +52,9 @@ name: Check_Wikipedia
 # Disable screenshots on error
 screenshot_on_error: false
 
+# Check every 5 minutes
+interval: 300
+
 steps:
   # Check homepage
   - goto: https://en.wikipedia.org/wiki/Main_Page
