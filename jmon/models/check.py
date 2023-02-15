@@ -6,6 +6,7 @@ import yaml
 import json
 
 import jmon.database
+import jmon.config
 
 
 class Check(jmon.database.Base):
@@ -48,6 +49,7 @@ class Check(jmon.database.Base):
                 instance = cls(name=name)
 
             instance.steps = steps
+            instance.screenshot_on_error = content.get("screenshot_on_error")
 
             session.add(instance)
             session.commit()
@@ -71,3 +73,13 @@ class Check(jmon.database.Base):
     def steps(self, value):
         """Set steps in database"""
         self._steps = json.dumps(value)
+
+    @property
+    def should_screenshot_on_error(self):
+        """Whether a screenshot should be taken on error"""
+        # Return confinguration for check, if available
+        if self.screenshot_on_error is not None:
+            return self.screenshot_on_error
+
+        # Return default config for whether to screenshot on failure
+        return jmon.config.Config.get().SCREENSHOT_ON_FAILURE_DEFAULT

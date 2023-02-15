@@ -51,6 +51,10 @@ steps:
 # Add check for Wikipedia
 curl -XPOST localhost:5000/api/v1/checks -H 'Content-Type: application/yml' -d '
 name: Check_Wikipedia
+
+# Disable screenshots on error
+screenshot_on_error: false
+
 steps:
   # Check homepage
   - goto: https://en.wikipedia.org/wiki/Main_Page
