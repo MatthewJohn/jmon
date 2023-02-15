@@ -9,7 +9,7 @@
                         $('#check-table-body').append(`
                             <tr>
                                 <td>${check}</td>
-                                <td></td>
+                                <td>${check_result.latest_status === true ? "Success" : check_result.latest_status === false ? "Failure" : "Not run"}</td>
                                 <td>${(check_result.average_success * 100).toPrecision(2)}%</td>
                             </tr>
                         `);
@@ -21,7 +21,7 @@
     <body>
         <table>
             <thead>
-                <tr><th>Check</th><th>Status</th><th>Success rate</th></tr>
+                <tr><th>Check</th><th>Latest run</th><th>Success rate</th></tr>
             </thead>
             <tbody id="check-table-body"></tbody>
         </table>

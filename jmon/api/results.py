@@ -2,7 +2,10 @@
 from flask import request
 import yaml
 
-from jmon.result_database import ResultDatabase, ResultMetricAverageSuccessRate
+from jmon.result_database import (
+    ResultDatabase, ResultMetricAverageSuccessRate,
+    ResultMetricLatestStatus
+)
 
 from . import FlaskApp
 from jmon.models import Check
@@ -20,5 +23,7 @@ def get_check_results(check_name):
     result_database = ResultDatabase()
     return {
         "average_success": ResultMetricAverageSuccessRate().read(
+            result_database=result_database, check=check),
+        "latest_status": ResultMetricLatestStatus().read(
             result_database=result_database, check=check)
     }, 200

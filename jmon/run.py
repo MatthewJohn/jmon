@@ -6,7 +6,7 @@ import logging
 
 from jmon.logger import logger
 from jmon.artifact_storage import ArtifactStorage
-from jmon.result_database import ResultMetricAverageSuccessRate, ResultDatabase
+from jmon.result_database import ResultMetricAverageSuccessRate, ResultDatabase, ResultMetricLatestStatus
 
 
 class Run:
@@ -48,8 +48,10 @@ class Run:
 
         # Create metrics
         result_database = ResultDatabase()
-        success_metric = ResultMetricAverageSuccessRate()
-        success_metric.write(result_database=result_database, run=self)
+        average_success_metric = ResultMetricAverageSuccessRate()
+        average_success_metric.write(result_database=result_database, run=self)
+        latest_status_metric = ResultMetricLatestStatus()
+        latest_status_metric.write(result_database=result_database, run=self)
 
     def get_artifact_key(self):
         """Return key for run"""

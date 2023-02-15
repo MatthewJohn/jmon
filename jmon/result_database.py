@@ -28,11 +28,11 @@ class ResultMetricAverageSuccessRate(ResultMetric):
         return f"{check.name}_{success_key_part}"
 
     def write(self, result_database, run):
-        """Base method to write result to redis"""
+        """Increment count for success/failure for run"""
         result_database.connection.hincrby(self._get_name(), self._get_key(run.check, run.success))
 
     def read(self, result_database, check):
-        """Base method to read result from redis"""
+        """Get success rate fraction"""
         # Get average successes/failures
         successes = int(result_database.connection.hget(self._get_name(), self._get_key(check, True)) or 0)
         failures = int(result_database.connection.hget(self._get_name(), self._get_key(check, False)) or 0)
@@ -41,6 +41,39 @@ class ResultMetricAverageSuccessRate(ResultMetric):
         if (successes + failures) == 0:
             return None
         return successes / (successes + failures)
+
+
+class ResultMetricLatestStatus(ResultMetric):
+    """Metric for latest result status"""
+
+    def _get_name(self):
+        """Get name of metric"""
+        return "jmon_result_metric_latest_status"
+
+    def _get_key(self, check):
+        """Get key from check"""
+        return check.name
+
+    def write(self, result_database, run):
+        """Write result to redis"""
+        result_database.connection.hset(self._get_name(), self._get_key(run.check), 1 if run.success else 0)
+
+    def read(self, result_database, check):
+        """Get latest check result status"""
+        # Get average successes/failures
+        result = result_database.connection.hget(self._get_name(), self._get_key(check))
+        if result is None:
+            return None
+
+        result = int(result.decode('utf-8'))
+
+        # Return True/False based on 1 or 2
+        if result == 1:
+            return True
+        elif result == 0:
+            return False
+        # Default to None (not run), assuming the metric doesn't exist
+        return None
 
 
 class ResultDatabase:
