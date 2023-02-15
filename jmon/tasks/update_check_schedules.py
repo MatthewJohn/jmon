@@ -9,7 +9,7 @@ from jmon import app
 
 def update_check_schedules():
     """Add task schedules for each check in database."""
-    checks = jmon.models.Check.query.all()
+    checks = jmon.models.Check.get_all()
     for check in checks:
         interval = celery.schedules.schedule(run_every=jmon.config.Config.get().DEFAULT_CHECK_INTERVAL)
         entry = RedBeatSchedulerEntry(

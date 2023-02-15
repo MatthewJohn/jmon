@@ -10,6 +10,25 @@ import sqlalchemy.orm
 import jmon.config
 
 
+class Session:
+
+    def __init__(self):
+        self._thread_id = _ident_func()
+        self._session = None
+
+    def __enter__(self):
+        """Create session and return"""
+        self._session = sqlalchemy.orm.scoped_session(
+            Database.get_session_maker()
+        )
+        return self._session
+
+    def __exit__(self, *args, **kwargs):
+        """Tear down session"""
+        if self._session:
+            self._session.close()
+
+
 class Database:
     """Handle database connection and settng up database schema"""
 
@@ -31,16 +50,6 @@ class Database:
         if cls._ENGINE is None:
             cls._ENGINE = sqlalchemy.create_engine(jmon.config.Config.get().DATABASE_URL)
         return cls._ENGINE
-
-    @classmethod
-    def get_session(cls):
-        """Return database session"""
-        thread_id = _ident_func()
-        if thread_id not in cls._SESSIONS:
-            cls._SESSIONS[thread_id] = sqlalchemy.orm.scoped_session(
-                cls.get_session_maker()
-            )
-        return cls._SESSIONS[thread_id]
 
     @classmethod
     def get_session_maker(cls):
@@ -67,6 +76,4 @@ class Database:
             return None
         return value.decode(cls.blob_encoding_format)
 
-
 Base = sqlalchemy.orm.declarative_base()
-Base.query = Database.get_session().query_property()

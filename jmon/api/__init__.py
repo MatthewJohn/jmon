@@ -1,2 +1,3 @@
 from .app import FlaskApp
-import jmon.api.register_service
+import jmon.api.check
+import jmon.api.results

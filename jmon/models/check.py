@@ -11,6 +11,18 @@ import jmon.database
 class Check(jmon.database.Base):
 
     @classmethod
+    def get_all(cls):
+        """Get all checks"""
+        with jmon.database.Session() as session:
+            return session.query(cls).all()
+
+    @classmethod
+    def get_by_name(cls, name):
+        """Get all checks"""
+        with jmon.database.Session() as session:
+            return session.query(cls).filter(cls.name==name).first()
+
+    @classmethod
     def from_yaml(cls, yml):
         """Return instance of class from check yaml"""
         try:
@@ -28,16 +40,17 @@ class Check(jmon.database.Base):
             raise Exception("No steps defined for check")
 
         # Check for existing steps with the same name
-        session = jmon.database.Database.get_session()
-        instance = session.query(cls).filter(cls.name==name).first()
-        # Create new instance of check, if it doesn't exist
-        if not instance:
-            instance = cls(name=name)
+        with jmon.database.Session() as session:
 
-        instance.steps = steps
+            instance = session.query(cls).filter(cls.name==name).first()
+            # Create new instance of check, if it doesn't exist
+            if not instance:
+                instance = cls(name=name)
 
-        session.add(instance)
-        session.commit()
+            instance.steps = steps
+
+            session.add(instance)
+            session.commit()
 
         return instance
 

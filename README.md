@@ -25,7 +25,7 @@ docker-compose up -d
 docker-compose exec minio mc mb jmon-results
 
 # Add check for W3Schools
-curl -XPOST localhost:5000/api/v1/check -H 'Content-Type: application/yml' -d '
+curl -XPOST localhost:5000/api/v1/checks -H 'Content-Type: application/yml' -d '
 name: Check_W3Schools
 steps:
   # Goto Homepage
@@ -49,7 +49,7 @@ steps:
 '
 
 # Add check for Wikipedia
-curl -XPOST localhost:5000/api/v1/check -H 'Content-Type: application/yml' -d '
+curl -XPOST localhost:5000/api/v1/checks -H 'Content-Type: application/yml' -d '
 name: Check_Wikipedia
 steps:
   # Check homepage
