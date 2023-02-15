@@ -59,6 +59,7 @@ class Check(jmon.database.Base):
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
     name = sqlalchemy.Column(jmon.database.Database.GeneralString, primary_key=True)
+    screenshot_on_error = sqlalchemy.Column(sqlalchemy.Boolean)
     _steps = sqlalchemy.Column(jmon.database.Database.LargeString, name="steps")
 
     @property
