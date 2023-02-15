@@ -43,6 +43,8 @@ class Config:
     AWS_ENDPOINT = os.environ.get('AWS_ENDPOINT')
     AWS_BUCKET_NAME = os.environ.get('AWS_BUCKET_NAME')
 
+    SCREENSHOT_ON_FAILURE_DEFAULT = os.environ.get('SCREENSHOT_ON_FAILURE_DEFAULT', 'True').lower() == 'true'
+
     @classmethod
     def get(cls):
         """Get instance of config"""
