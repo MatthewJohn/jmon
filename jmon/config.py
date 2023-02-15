@@ -12,7 +12,7 @@ class Config:
     DATABASE_PASSWORD = os.environ.get("DB_PASSWORD")
     DATABASE_NAME = os.environ.get("DB_NAME")
 
-    DEFAULT_CHECK_INTERVAL = float(os.environ.get('DEFAULT_CHECK_INTERVAL', '45.0'))
+    DEFAULT_CHECK_INTERVAL = float(os.environ.get('DEFAULT_CHECK_INTERVAL', '10.0'))
 
     @property
     def DATABASE_URL(self):
@@ -25,6 +25,20 @@ class Config:
             raise Exception("Unrecognised DB_TYPE")
 
         return f"{sqlalchemy_type}://{self.DATABASE_USERNAME}:{self.DATABASE_PASSWORD}@{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.DATABASE_NAME}"
+
+    BROKER_TYPE = os.environ.get('BROKER_TYPE')
+    BROKER_HOST = os.environ.get('BROKER_HOST')
+    BROKER_USERNAME = os.environ.get('BROKER_USERNAME')
+    BROKER_PASSWORD = os.environ.get('BROKER_PASSWORD')
+    BROKER_PORT = int(os.environ.get('BROKER_PORT', 0))
+    BROKER_INSTANCE = os.environ.get('BROKER_INSTANCE')
+
+    REDIS_TYPE = os.environ.get('REDIS_TYPE')
+    REDIS_HOST = os.environ.get('REDIS_HOST')
+    REDIS_USERNAME = os.environ.get('REDIS_USERNAME')
+    REDIS_PASSWORD = os.environ.get('REDIS_PASSWORD')
+    REDIS_PORT = int(os.environ.get('REDIS_PORT', 0))
+    REDIS_INSTANCE = os.environ.get('REDIS_INSTANCE')
 
     AWS_ENDPOINT = os.environ.get('AWS_ENDPOINT')
     AWS_BUCKET_NAME = os.environ.get('AWS_BUCKET_NAME')
