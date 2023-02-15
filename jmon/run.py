@@ -35,9 +35,9 @@ class Run:
         """Return success status"""
         return self._success
 
-    def end(self, status):
+    def end(self, success):
         """End logging and upload"""
-        self._status = status
+        self._success = success
 
         logger.removeHandler(self._log_handler)
 

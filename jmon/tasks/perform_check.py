@@ -23,6 +23,6 @@ def perform_check(check_name):
         logger.error(f"An error occured: {exc}")
         raise
     finally:
-        run.end(status=success)
+        run.end(success=success)
 
     return True
