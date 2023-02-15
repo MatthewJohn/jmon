@@ -11,6 +11,16 @@ import jmon.database
 class Check(jmon.database.Base):
 
     @classmethod
+    def get_all(cls):
+        """Get all checks"""
+        return cls.query.all()
+
+    @classmethod
+    def get_by_name(cls, name):
+        """Get all checks"""
+        return cls.query.filter(cls.name==name).first()
+
+    @classmethod
     def from_yaml(cls, yml):
         """Return instance of class from check yaml"""
         try:
