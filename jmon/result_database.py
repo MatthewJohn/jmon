@@ -103,16 +103,32 @@ class ResultRegisterResult(ResultMetric):
     def get_all_runs_by_check(self, result_database, check):
         """Get all runs for check"""
         result_key = check.get_result_key()
-        return sorted([
-            key.decode('utf-8').replace(result_key, '')
+        keys = [
+            key.decode('utf-8')
             for key in result_database.connection.scan_iter(f"{result_key}*")
-        ])
+        ]
+
+        pipe = result_database.connection.pipeline()
+        # Get all keys
+        for key in keys:
+            pipe.get(key)
+
+        # Execute pipeline and decode values to strings, convert strings to
+        # integers (1 or 0) and then convert to bool
+        values = [
+            bool(int(value.decode('utf-8'))) if not value is None else None
+            for value in pipe.execute()
+        ]
+        # Strip run prefix from run keys
+        keys = [key.replace(result_key, '') for key in keys]
+        return dict(zip(keys, values))
 
     def get_latest_run(self, result_database, check):
         """Get latest run for check"""
         runs = self.get_all_runs_by_check(result_database=result_database, run=check)
         if runs:
-            return runs[-1]
+            latest_key = sorted(runs.keys())[-1]
+            return runs[latest_key]
         return None
 
 
