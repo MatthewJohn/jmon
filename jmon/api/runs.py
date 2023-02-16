@@ -1,13 +1,8 @@
 
 from flask import request
-import yaml
-
-from jmon.result_database import (
-    ResultDatabase, ResultRegisterResult
-)
 
 from . import FlaskApp
-from jmon.models import Check
+from jmon.models import Check, Run
 
 
 @FlaskApp.app.route('/api/v1/checks/<check_name>/runs', methods=["GET"])
@@ -19,8 +14,7 @@ def get_check_runs(check_name):
             "error": "Check does not exist"
         }, 400
 
-    result_database = ResultDatabase()
-    runs =  ResultRegisterResult().get_all_runs_by_check(
-        result_database=result_database,
-        check=check)
-    return runs, 200
+    return {
+        run.timestamp_key: run.success
+        for run in Run.get_by_check(check=check)
+    }, 200

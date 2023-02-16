@@ -8,8 +8,8 @@ import jmon.database
 
 def perform_check(check_name):
     # Get config for check
-    with jmon.database.Session() as session:
-        check = session.query(jmon.models.Check).filter(jmon.models.Check.name==check_name).first()
+    session = jmon.database.Database.get_session()
+    check = session.query(jmon.models.Check).filter(jmon.models.Check.name==check_name).first()
 
     if not check:
         raise Exception("Could not find check")
@@ -27,5 +27,6 @@ def perform_check(check_name):
         raise
     finally:
         run.end(success=success)
+        jmon.database.Database.clear_session()
 
     return True

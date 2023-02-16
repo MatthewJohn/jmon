@@ -7,7 +7,8 @@ import os
 
 from jmon.logger import logger
 from jmon.artifact_storage import ArtifactStorage
-from jmon.result_database import ResultMetricAverageSuccessRate, ResultDatabase, ResultMetricLatestStatus, ResultRegisterResult
+from jmon.result_database import ResultMetricAverageSuccessRate, ResultDatabase, ResultMetricLatestStatus
+import jmon.models.run
 
 
 class Run:
@@ -15,9 +16,8 @@ class Run:
     def __init__(self, check):
         """Store run information"""
         self._check = check
-        self._start_date = datetime.datetime.now()
+        self._db_run = jmon.models.run.Run.create(check=check)
 
-        self._success = None
         self._artifact_paths = []
 
         self._log_stream = StringIO()
@@ -35,7 +35,7 @@ class Run:
     @property
     def success(self):
         """Return success status"""
-        return self._success
+        return self._db_run.success
 
     def register_artifact(self, path):
         """Register artifact to be uploaded to artifact storage"""
@@ -43,7 +43,7 @@ class Run:
 
     def end(self, success):
         """End logging and upload"""
-        self._success = success
+        self._db_run.set_success(success)
 
         logger.removeHandler(self._log_handler)
 
@@ -61,12 +61,10 @@ class Run:
         average_success_metric.write(result_database=result_database, run=self)
         latest_status_metric = ResultMetricLatestStatus()
         latest_status_metric.write(result_database=result_database, run=self)
-        run_register = ResultRegisterResult()
-        run_register.write(result_database=result_database, run=self)
 
     def get_run_key(self):
         """Return datetime key for run"""
-        return self._start_date.strftime('%Y-%m-%d_%H-%M-%S')
+        return self._db_run.timestamp_key
 
     def get_artifact_key(self):
         """Return key for run"""

@@ -9,6 +9,13 @@ class FlaskApp:
 
     app = Flask(__name__, static_folder=os.path.join('..', 'static'))
 
+    @app.teardown_request
+    def teardown(request):
+        """Tear down request"""
+        # Clear down DB session
+        Database.clear_session()
+
+
     @app.route('/')
     def serve_index():
         """Return static index page"""
