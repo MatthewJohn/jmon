@@ -8,7 +8,7 @@
                     $.get(`/api/v1/checks/${check}/results`).then((check_result) => {
                         $('#check-table-body').append(`
                             <tr>
-                                <td>${check}</td>
+                                <td><a href="/check?name=${check}">${check}</a></td>
                                 <td>${check_result.latest_status === true ? "Success" : check_result.latest_status === false ? "Failure" : "Not run"}</td>
                                 <td>${(check_result.average_success * 100).toPrecision(2)}%</td>
                             </tr>

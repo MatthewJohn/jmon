@@ -1,0 +1,32 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="/static/css/pico.min.css">
+        <style>
+            .success-row > td {
+                background-color: #ccffcc;
+            }
+            .failure-row > td {
+                background-color: #ffcccc;
+            }
+        </style>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+        <script>
+            // Get check from params
+            var urlParams = new URLSearchParams(window.location.search);
+            let checkName = urlParams.get('check');
+            let timestamp = urlParams.get('timestamp');
+
+            $.get(`/api/v1/checks/${checkName}/runs/${timestamp}`).then((run) => {
+            })
+        </script>
+    </head>
+    <body>
+        <table>
+            <h2 id="check-title"></h2>
+            <thead>
+                <tr><th>Date</th><th>Staus</th></tr>
+            </thead>
+            <tbody id="run-table-body"></tbody>
+        </table>
+    </body>
+</html>
