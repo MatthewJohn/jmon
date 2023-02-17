@@ -25,15 +25,16 @@ class Runner:
                 selenium_instance=selenium_instance,
                 element=selenium_instance
             )
-            
-        finally:
 
-            # Perform final screenshot, if configured
+        except:
+            # Perform failure screenshot, if configured
             if run.check.should_screenshot_on_error:
                 error_screenshot = ScreenshotAction(run=run, config="failure")
                 error_screenshot.execute(
                     selenium_instance=selenium_instance,
                     element=selenium_instance)
+
+        finally:
 
             selenium_instance.quit()
             display_instance.stop()
