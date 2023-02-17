@@ -33,6 +33,7 @@ class Runner:
                 error_screenshot.execute(
                     selenium_instance=selenium_instance,
                     element=selenium_instance)
+            raise
 
         finally:
 
