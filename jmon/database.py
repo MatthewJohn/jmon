@@ -63,6 +63,21 @@ class Database:
         return cls._SESSION_MAKER
 
     @classmethod
+    def get_session(cls):
+        """Return session for the current thread"""
+        thread_id = _ident_func()
+        if thread_id not in cls._SESSIONS:
+            cls._SESSIONS[thread_id] = sqlalchemy.orm.scoped_session(
+                Database.get_session_maker()
+            )
+        return cls._SESSIONS[thread_id]
+
+    @classmethod
+    def clear_session(cls):
+        """Clear session for thread"""
+        cls.get_session().remove()
+
+    @classmethod
     def encode_value(cls, value):
         """Encode value for binary blob"""
         if not value:

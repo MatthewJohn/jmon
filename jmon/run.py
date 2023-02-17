@@ -8,17 +8,26 @@ import os
 from jmon.logger import logger
 from jmon.artifact_storage import ArtifactStorage
 from jmon.result_database import ResultMetricAverageSuccessRate, ResultDatabase, ResultMetricLatestStatus
+import jmon.models.run
 
 
 class Run:
 
-    def __init__(self, check):
+    def __init__(self, check, db_run=None):
         """Store run information"""
         self._check = check
-        self._start_date = datetime.datetime.now()
+        self._db_run = db_run
 
-        self._success = None
         self._artifact_paths = []
+
+        self._log_stream = None
+        self._log_handler = None
+
+    def start(self):
+        """Start run, setting up db run object and logging"""
+        if self._db_run is not None:
+            raise Exception("Cannot start run with Run DB modal already configured")
+        self._db_run = jmon.models.run.Run.create(check=self._check)
 
         self._log_stream = StringIO()
         self._log_handler = logging.StreamHandler(self._log_stream)
@@ -35,15 +44,30 @@ class Run:
     @property
     def success(self):
         """Return success status"""
-        return self._success
+        return self._db_run.success
 
     def register_artifact(self, path):
         """Register artifact to be uploaded to artifact storage"""
         self._artifact_paths.append(path)
 
+    def get_stored_artifacts(self):
+        """Get list of artifacts from storage"""
+        artifact_storage = ArtifactStorage()
+        artifact_prefix = f"{self.get_artifact_key()}/"
+        return [
+            key.replace(artifact_prefix, '')
+            for key in artifact_storage.list_files(artifact_prefix)
+        ]
+
+    def get_artifact_content(self, artifact):
+        """Get artifact content"""
+        artifact_storage = ArtifactStorage()
+        artifact_path = f"{self.get_artifact_key()}/{artifact}"
+        return artifact_storage.get_file(artifact_path)
+
     def end(self, success):
         """End logging and upload"""
-        self._success = success
+        self._db_run.set_success(success)
 
         logger.removeHandler(self._log_handler)
 
@@ -62,9 +86,13 @@ class Run:
         latest_status_metric = ResultMetricLatestStatus()
         latest_status_metric.write(result_database=result_database, run=self)
 
+    def get_run_key(self):
+        """Return datetime key for run"""
+        return self._db_run.timestamp_id
+
     def get_artifact_key(self):
         """Return key for run"""
-        return f"{self._check.name}/{self._start_date.strftime('%Y-%m-%d_%H-%M-%S')}"
+        return f"{self._check.name}/{self.get_run_key()}"
 
     def read_log_stream(self):
         """Return data from logstream"""
