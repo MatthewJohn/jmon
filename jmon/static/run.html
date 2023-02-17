@@ -8,6 +8,14 @@
             .failure-row > td {
                 background-color: #ffcccc;
             }
+            .artifact-image {
+                border-color: black;
+                border-style: solid;
+                border-width: 1px;
+
+                max-height: 400px;
+                max-width: 30%;
+            }
         </style>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
         <script>
@@ -16,17 +24,46 @@
             let checkName = urlParams.get('check');
             let timestamp = urlParams.get('timestamp');
 
+            $('#run-title').text(`${checkName}: ${timestamp}`);
+
+            let artifactBaseUrl = `/api/v1/checks/${checkName}/runs/${timestamp}/artifacts/`;
+
             $.get(`/api/v1/checks/${checkName}/runs/${timestamp}`).then((run) => {
+                $('#run-status').text(`Status: ${run.status == true ? "Success" : "Failure"}`)
+                
+                // Obtain run log, if it exists
+                if (run.artifacts.indexOf('artifact.log') !== -1) {
+                    $.get(`${artifactBaseUrl}/artifact.log`).then((runLog) => {
+                        $('#run-log').text(runLog)
+                    })
+                }
+
+                run.artifacts.forEach((artifactName) => {
+                    if (artifactName.indexOf('.png', artifactName.length - 4) !== -1) {
+                        $('#artifacts').append(`
+                            <div>
+                                <a href="${artifactBaseUrl}/${artifactName}">
+                                    <span>${artifactName}</span>
+                                    <img src="${artifactBaseUrl}/${artifactName}" class="artifact-image" />
+                                </a>
+                            </div>
+                        `);
+                    }
+                });
             })
         </script>
     </head>
     <body>
-        <table>
-            <h2 id="check-title"></h2>
-            <thead>
-                <tr><th>Date</th><th>Staus</th></tr>
-            </thead>
-            <tbody id="run-table-body"></tbody>
-        </table>
+        <h2 id="run-title"></h2>
+        <h3 id="run-status"></h3>
+        <span>Log</span>
+        <code >
+            <pre id="run-log">
+
+            </pre>
+        </code>
+        <div id="artifacts" class="grid">
+        </div>
+
     </body>
 </html>

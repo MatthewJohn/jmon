@@ -1,6 +1,9 @@
 
+from io import BytesIO
+
 import boto3
 import boto3.session
+import botocore.exceptions
 
 import jmon.config
 
@@ -40,3 +43,13 @@ class ArtifactStorage:
             file.key
             for file in self._get_bucket().objects.filter(Prefix=path_prefix)
         ]
+
+    def get_file(self, path):
+        """Get content for artifact"""
+        content = BytesIO()
+        try:
+            self._get_bucket().download_fileobj(Key=path, Fileobj=content)
+        except botocore.exceptions.ClientError:
+            return None
+        content.seek(0)
+        return content.read()

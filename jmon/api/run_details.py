@@ -29,5 +29,5 @@ def get_run_details(check_name, timestamp):
 
     return {
         "status": run.success,
-        "artfacts": run.get_stored_artifacts()
+        "artifacts": run.get_stored_artifacts()
     }

@@ -59,6 +59,12 @@ class Run:
             for key in artifact_storage.list_files(artifact_prefix)
         ]
 
+    def get_artifact_content(self, artifact):
+        """Get artifact content"""
+        artifact_storage = ArtifactStorage()
+        artifact_path = f"{self.get_artifact_key()}/{artifact}"
+        return artifact_storage.get_file(artifact_path)
+
     def end(self, success):
         """End logging and upload"""
         self._db_run.set_success(success)
