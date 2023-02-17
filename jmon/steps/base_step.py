@@ -9,7 +9,7 @@ class BaseStep:
 
     def __init__(self, run, config):
         """Store member variables"""
-        logger.info(f"Creating step: {self.__class__.__name__}: {config}")
+        logger.debug(f"Creating step: {self.__class__.__name__}: {config}")
         self._config = config
         self._run = run
 
