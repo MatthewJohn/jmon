@@ -1,5 +1,6 @@
 
 
+import datetime
 import sqlalchemy
 import sqlalchemy.orm
 
@@ -8,6 +9,8 @@ import jmon.config
 
 
 class Run(jmon.database.Base):
+
+    TIMESTAMP_FORMAT = '%Y-%m-%d_%H-%M-%S'
 
     @classmethod
     def get_latest_by_check(cls, check):
@@ -22,10 +25,19 @@ class Run(jmon.database.Base):
         return [run for run in session.query(cls).filter(cls.check==check)]
 
     @classmethod
+    def get(cls, check, timestamp_id):
+        """Return run for check and timestamp"""
+        session = jmon.database.Database.get_session()
+        return session.query(cls).filter(cls.check==check, cls.timestamp_id==timestamp_id).first()
+
+    @classmethod
     def create(cls, check):
         """Create run"""
         session = jmon.database.Database.get_session()
         run = cls(check=check)
+        timestamp = datetime.datetime.now()
+        run.timestamp = timestamp
+        run.timestamp_id = timestamp.strftime(cls.TIMESTAMP_FORMAT)
 
         session.add(run)
         session.commit()
@@ -41,13 +53,13 @@ class Run(jmon.database.Base):
     )
     check = sqlalchemy.orm.relationship("Check", foreign_keys=[check_id])
 
-    timestamp = sqlalchemy.Column(sqlalchemy.DateTime, default=sqlalchemy.sql.func.now(), primary_key=True)
-    success = sqlalchemy.Column(sqlalchemy.Boolean)
+    # String representation of the tiemstamp, in the format of
+    # the tiemstamp_key
+    timestamp_id = sqlalchemy.Column(sqlalchemy.String, primary_key=True)
+    # Datetime timestamp of check
+    timestamp = sqlalchemy.Column(sqlalchemy.DateTime)
 
-    @property
-    def timestamp_key(self):
-        """Return key value for timestamp"""
-        return self.timestamp.strftime('%Y-%m-%d_%H-%M-%S') if self.timestamp else None
+    success = sqlalchemy.Column(sqlalchemy.Boolean)
 
     def set_success(self, success):
         """Set success value"""

@@ -15,6 +15,6 @@ def get_check_runs(check_name):
         }, 400
 
     return {
-        run.timestamp_key: run.success
+        run.timestamp_id: run.success
         for run in Run.get_by_check(check=check)
     }, 200

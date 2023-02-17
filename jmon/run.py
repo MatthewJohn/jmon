@@ -64,7 +64,7 @@ class Run:
 
     def get_run_key(self):
         """Return datetime key for run"""
-        return self._db_run.timestamp_key
+        return self._db_run.timestamp_id
 
     def get_artifact_key(self):
         """Return key for run"""
