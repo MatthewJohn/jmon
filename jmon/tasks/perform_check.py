@@ -15,6 +15,7 @@ def perform_check(check_name):
         raise Exception("Could not find check")
 
     run = Run(check)
+    run.start()
 
     runner = Runner()
 

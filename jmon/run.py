@@ -13,12 +13,21 @@ import jmon.models.run
 
 class Run:
 
-    def __init__(self, check):
+    def __init__(self, check, db_run=None):
         """Store run information"""
         self._check = check
-        self._db_run = jmon.models.run.Run.create(check=check)
+        self._db_run = db_run
 
         self._artifact_paths = []
+
+        self._log_stream = None
+        self._log_handler = None
+
+    def start(self):
+        """Start run, setting up db run object and logging"""
+        if self._db_run is not None:
+            raise Exception("Cannot start run with Run DB modal already configured")
+        self._db_run = jmon.models.run.Run.create(check=self._check)
 
         self._log_stream = StringIO()
         self._log_handler = logging.StreamHandler(self._log_stream)
@@ -40,6 +49,11 @@ class Run:
     def register_artifact(self, path):
         """Register artifact to be uploaded to artifact storage"""
         self._artifact_paths.append(path)
+
+    def get_stored_artifacts(self):
+        """Get list of artifacts from storage"""
+        artifact_storage = ArtifactStorage()
+        return artifact_storage.list_files(f"{self.get_artifact_key()}/")
 
     def end(self, success):
         """End logging and upload"""
