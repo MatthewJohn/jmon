@@ -55,9 +55,9 @@ class Run(jmon.database.Base):
 
     # String representation of the tiemstamp, in the format of
     # the tiemstamp_key
-    timestamp_id = sqlalchemy.Column(sqlalchemy.String, primary_key=True)
+    timestamp_id = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     # Datetime timestamp of check
-    timestamp = sqlalchemy.Column(sqlalchemy.DateTime)
+    timestamp = sqlalchemy.Column(sqlalchemy.DateTime, primary_key=True)
 
     success = sqlalchemy.Column(sqlalchemy.Boolean)
 
