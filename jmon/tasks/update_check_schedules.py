@@ -4,6 +4,7 @@ from redbeat import RedBeatSchedulerEntry
 
 import jmon.models
 import jmon.config
+import jmon.database
 from jmon import app
 
 
@@ -20,3 +21,6 @@ def update_check_schedules():
             app=app
         )
         entry.save()
+
+    # Clear down session
+    jmon.database.Database.clear_session()

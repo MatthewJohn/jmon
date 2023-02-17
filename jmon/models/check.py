@@ -7,6 +7,7 @@ import json
 
 import jmon.database
 import jmon.config
+import jmon.models.run
 
 
 class Check(jmon.database.Base):
@@ -14,14 +15,14 @@ class Check(jmon.database.Base):
     @classmethod
     def get_all(cls):
         """Get all checks"""
-        with jmon.database.Session() as session:
-            return session.query(cls).all()
+        session = jmon.database.Database.get_session()
+        return session.query(cls).all()
 
     @classmethod
     def get_by_name(cls, name):
         """Get all checks"""
-        with jmon.database.Session() as session:
-            return session.query(cls).filter(cls.name==name).first()
+        session = jmon.database.Database.get_session()
+        return session.query(cls).filter(cls.name==name).first()
 
     @classmethod
     def from_yaml(cls, yml):
@@ -41,19 +42,19 @@ class Check(jmon.database.Base):
             raise Exception("No steps defined for check")
 
         # Check for existing steps with the same name
-        with jmon.database.Session() as session:
+        session = jmon.database.Database.get_session()
 
-            instance = session.query(cls).filter(cls.name==name).first()
-            # Create new instance of check, if it doesn't exist
-            if not instance:
-                instance = cls(name=name)
+        instance = session.query(cls).filter(cls.name==name).first()
+        # Create new instance of check, if it doesn't exist
+        if not instance:
+            instance = cls(name=name)
 
-            instance.steps = steps
-            instance.screenshot_on_error = content.get("screenshot_on_error")
-            instance.interval = int(content.get("interval", 0))
+        instance.steps = steps
+        instance.screenshot_on_error = content.get("screenshot_on_error")
+        instance.interval = int(content.get("interval", 0))
 
-            session.add(instance)
-            session.commit()
+        session.add(instance)
+        session.commit()
 
         return instance
 
@@ -85,6 +86,10 @@ class Check(jmon.database.Base):
 
         # Return default config for whether to screenshot on failure
         return jmon.config.Config.get().SCREENSHOT_ON_FAILURE_DEFAULT
+
+    def get_result_key(self):
+        """Get redis key prefix for results."""
+        return f"jmon_run_result_{self.name}_"
 
     def get_interval(self):
         """Return interval of check, based on custom definition, global min/max and default interval"""
