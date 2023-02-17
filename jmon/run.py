@@ -53,7 +53,11 @@ class Run:
     def get_stored_artifacts(self):
         """Get list of artifacts from storage"""
         artifact_storage = ArtifactStorage()
-        return artifact_storage.list_files(f"{self.get_artifact_key()}/")
+        artifact_prefix = f"{self.get_artifact_key()}/"
+        return [
+            key.replace(artifact_prefix, '')
+            for key in artifact_storage.list_files(artifact_prefix)
+        ]
 
     def end(self, success):
         """End logging and upload"""
