@@ -24,7 +24,7 @@ class BaseStep:
         """Return full Id for step"""
         id = ""
         if self._parent is not None:
-            id = self._parent.id + " -> "
+            id = self._parent.full_id + " -> "
         id += self.id
         return id
 
