@@ -61,6 +61,11 @@ class Run(jmon.database.Base):
 
     success = sqlalchemy.Column(sqlalchemy.Boolean)
 
+    @property
+    def id(self):
+        """Return string representation of run"""
+        return f"{self.check.name}-${self.timestamp_id}"
+
     def set_success(self, success):
         """Set success value"""
         session = jmon.database.Database.get_session()
