@@ -24,7 +24,7 @@ class Run:
         self._log_stream = StringIO()
         self._log_handler = logging.StreamHandler(self._log_stream)
         self._log_handler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s')
         self._log_handler.setFormatter(formatter)
 
 
