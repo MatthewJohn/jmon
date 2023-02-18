@@ -110,7 +110,8 @@ class BaseStep:
 
     def execute(self, selenium_instance, element):
         """Execute the current step and then execute each of the child steps"""
-        self._logger.info(f"Starting {self.id}: {self.description}")
+        self._logger.info(f"Starting {self.id}")
+        self._logger.info(self.description)
         element = self._execute(selenium_instance, element)
         self._logger.info(f"Completed {self.id}")
 
