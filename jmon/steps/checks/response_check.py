@@ -9,6 +9,16 @@ class ResponseCheck(BaseCheck):
 
     CONFIG_KEY = "response"
 
+    @property
+    def id(self):
+        """ID string for step"""
+        return f"CheckResponseCode"
+
+    @property
+    def description(self):
+        """Friendly description of step"""
+        return f"Check response code matches: {self._config}"
+
     @retry(count=5, interval=0.5)
     def _execute(self, selenium_instance, element):
         """Check response code"""
