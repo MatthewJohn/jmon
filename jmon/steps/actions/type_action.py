@@ -20,6 +20,5 @@ class TypeAction(BaseAction):
 
     def _execute(self, selenium_instance, element):
         """Type text"""
-        logger.info(f"Typing text: {self._config}")
         element.send_keys(self._config)
         return element

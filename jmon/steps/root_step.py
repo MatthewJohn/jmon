@@ -32,5 +32,5 @@ class RootStep(BaseStep):
 
     def _execute(self, selenium_instance, element):
         """Root module does nothing"""
-        logger.debug(f"Starting root with config: {self._config}")
+        self._logger.debug(f"Starting root with config: {self._config}")
         return element

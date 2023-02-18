@@ -4,6 +4,7 @@ from jmon.run import Run
 from jmon.runner import Runner
 from jmon.logger import logger
 import jmon.database
+from jmon.step_status import StepStatus
 
 
 def perform_check(check_name):
@@ -21,11 +22,13 @@ def perform_check(check_name):
 
     success = False
     try:
-        runner.perform_check(run=run)
-        success = True
+        status = runner.perform_check(run=run)
+        success = bool(status is StepStatus.SUCCESS)
+
     except Exception as exc:
-        logger.error(f"An error occured: {exc}")
+        run.logger.error(f"An internal/uncaught error occured: {exc}")
         raise
+
     finally:
         run.end(success=success)
         jmon.database.Database.clear_session()

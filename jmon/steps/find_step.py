@@ -1,5 +1,7 @@
 
+import selenium.common.exceptions
 from selenium.webdriver.common.by import By
+from jmon.step_status import StepStatus
 
 from jmon.steps.action_step import ActionStep
 from jmon.steps.base_step import BaseStep
@@ -24,7 +26,6 @@ class FindStep(BaseStep):
     @property
     def id(self):
         """ID string for step"""
-        _, _, value = self._get_find_type()
         return f"Find"
 
     @property
@@ -68,7 +69,6 @@ class FindStep(BaseStep):
             description = "by class: {value}"
 
         elif tag := self._config.get('tag'):
-            element = element.find_element(By.TAG_NAME, tag)
             by_type = By.TAG_NAME
             value = tag
             description = "by tag: {value}"
@@ -78,5 +78,10 @@ class FindStep(BaseStep):
     @retry(count=5, interval=0.5)
     def _execute(self, selenium_instance, element):
         """Find element on page"""
-        by_type, _, value, tag = self._get_find_type()
-        return element.find_element(by_type, value)
+        by_type, _, value, = self._get_find_type()
+        try:
+            return element.find_element(by_type, value)
+        except selenium.common.exceptions.NoSuchElementException as exc:
+            self._set_status(StepStatus.FAILED)
+            self._logger.error("Could not find element")
+            self._logger.debug(str(exc))

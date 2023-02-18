@@ -27,6 +27,12 @@ class Run:
         formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s')
         self._log_handler.setFormatter(formatter)
 
+    @property
+    def logger(self):
+        """Return logger"""
+        if self._logger is None:
+            raise Exception("Attempt to access run logger before start() called")
+        return self._logger
 
     def start(self):
         """Start run, setting up db run object and logging"""

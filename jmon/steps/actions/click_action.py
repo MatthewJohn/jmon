@@ -20,6 +20,5 @@ class ClickAction(BaseAction):
 
     def _execute(self, selenium_instance, element):
         """Click mouse"""
-        logger.info(f"Clicking")
         element.click()
         return element

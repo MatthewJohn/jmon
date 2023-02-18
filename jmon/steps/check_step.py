@@ -7,6 +7,7 @@ from jmon.logger import logger
 class CheckStep(BaseStep):
 
     CONFIG_KEY = "check"
+    CHILD_STEPS_FORM_STEP = True
 
     @property
     def supported_child_steps(self):
@@ -33,20 +34,21 @@ class CheckStep(BaseStep):
             response_code: 200
             url: https://www.example.com
         """
-        steps = []
+        if self._child_steps is None:
+            self._child_steps = []
 
-        supported_actions = self.get_supported_child_steps()
+            supported_actions = self.get_supported_child_steps()
 
-        for action_name in self._config:
-            if action_name in supported_actions:
-                steps.append(
-                    supported_actions[action_name](
-                        run=self._run,
-                        config=self._config[action_name],
-                        parent=self
+            for action_name in self._config:
+                if action_name in supported_actions:
+                    self._child_steps.append(
+                        supported_actions[action_name](
+                            run=self._run,
+                            config=self._config[action_name],
+                            parent=self
+                        )
                     )
-                )
-        return steps
+        return self._child_steps
 
     def _execute(self, selenium_instance, element):
         """Check variables attributes of the page/element"""

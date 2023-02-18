@@ -1,4 +1,7 @@
 
+import selenium.common.exceptions
+
+from jmon.step_status import StepStatus
 from jmon.steps.base_step import BaseStep
 from jmon.logger import logger
 
@@ -24,6 +27,10 @@ class GotoStep(BaseStep):
 
     def _execute(self, selenium_instance, element):
         """Goto URL"""
-        logger.info(f"Goto URL: {self._config}")
-        selenium_instance.get(self._config)
+        try:
+            selenium_instance.get(self._config)
+        except selenium.common.exceptions.WebDriverException as exc:
+            self._set_status(StepStatus.FAILED)
+            self._logger.error(str(exc))
+
         return element
