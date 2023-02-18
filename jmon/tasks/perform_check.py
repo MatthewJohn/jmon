@@ -33,4 +33,4 @@ def perform_check(check_name):
         run.end(success=success)
         jmon.database.Database.clear_session()
 
-    return True
+    return success
