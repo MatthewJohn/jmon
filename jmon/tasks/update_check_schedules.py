@@ -21,7 +21,7 @@ def update_check_schedules():
         reschedule = False
         try:
             entry = RedBeatSchedulerEntry.from_key(key=f"redbeat:{key}", app=app)
-            if entry.schedule.run_every != interval_seconds:
+            if entry.schedule.run_every != interval.run_every:
                 # Update interval and set directive to save
                 entry.interval = interval
                 needs_to_save = True
