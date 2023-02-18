@@ -9,6 +9,16 @@ class TitleCheck(BaseCheck):
 
     CONFIG_KEY = "title"
 
+    @property
+    def id(self):
+        """ID string for step"""
+        return f"CheckTitle"
+
+    @property
+    def description(self):
+        """Friendly description of step"""
+        return f"Check current title of browser matches: {self._config}"
+
     @retry(count=5, interval=0.5)
     def _execute(self, selenium_instance, element):
         """Check page title"""

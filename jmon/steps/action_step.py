@@ -12,6 +12,17 @@ class ActionStep(BaseStep):
         """Return list of child support step classes"""
         return jmon.steps.actions.BaseAction.__subclasses__()
 
+    @property
+    def id(self):
+        """ID string for step"""
+        return f"Actions"
+
+    @property
+    def description(self):
+        """Friendly description of step"""
+        return "Running action steps"
+
+
     def get_child_steps(self):
         """
         Get child steps
@@ -33,11 +44,13 @@ class ActionStep(BaseStep):
                         steps.append(
                             supported_actions[action_name](
                                 run=self._run,
-                                config=action_config[action_name])
+                                config=action_config[action_name],
+                                parent=self
+                            )
                         )
             elif type(action_config) is str:
                 steps.append(
-                    supported_actions[action_config](run=self._run, config=None)
+                    supported_actions[action_config](run=self._run, config=None, parent=self)
                 )
         return steps
 

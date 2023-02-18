@@ -19,8 +19,9 @@ class Runner:
         selenium_instance.delete_all_cookies()
         selenium_instance.implicitly_wait(1)
 
+
+        root_step = RootStep(run=run, config=run.check.steps, parent=None)
         try:
-            root_step = RootStep(run=run, config=run.check.steps)
             root_step.execute(
                 selenium_instance=selenium_instance,
                 element=selenium_instance
@@ -29,10 +30,15 @@ class Runner:
         except:
             # Perform failure screenshot, if configured
             if run.check.should_screenshot_on_error:
-                error_screenshot = ScreenshotAction(run=run, config="failure")
+                error_screenshot = ScreenshotAction(
+                    run=run,
+                    config="failure",
+                    parent=root_step
+                )
                 error_screenshot.execute(
                     selenium_instance=selenium_instance,
-                    element=selenium_instance)
+                    element=selenium_instance
+                )
 
         finally:
 

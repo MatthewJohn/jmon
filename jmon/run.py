@@ -20,8 +20,13 @@ class Run:
 
         self._artifact_paths = []
 
-        self._log_stream = None
-        self._log_handler = None
+        self._logger = None
+        self._log_stream = StringIO()
+        self._log_handler = logging.StreamHandler(self._log_stream)
+        self._log_handler.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        self._log_handler.setFormatter(formatter)
+
 
     def start(self):
         """Start run, setting up db run object and logging"""
@@ -29,12 +34,14 @@ class Run:
             raise Exception("Cannot start run with Run DB modal already configured")
         self._db_run = jmon.models.run.Run.create(check=self._check)
 
-        self._log_stream = StringIO()
-        self._log_handler = logging.StreamHandler(self._log_stream)
-        self._log_handler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        self._log_handler.setFormatter(formatter)
-        logger.addHandler(self._log_handler)
+        # Setup logger
+        self._logger = logging.getLogger(self._db_run.id)
+        self._logger.addHandler(self._log_handler)
+
+    @property
+    def log_handler(self):
+        """Return log handler"""
+        return self._log_handler
 
     @property
     def check(self):

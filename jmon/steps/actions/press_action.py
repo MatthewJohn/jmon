@@ -9,6 +9,16 @@ class PressAction(BaseAction):
 
     CONFIG_KEY = "press"
 
+    @property
+    def id(self):
+        """ID string for step"""
+        return f"Press"
+
+    @property
+    def description(self):
+        """Friendly description of step"""
+        return f"Pressing key: {self._config}"
+
     def _execute(self, selenium_instance, element):
         """Press keyboard key"""
         if self._config.lower() == "enter":

@@ -13,9 +13,19 @@ class ScreenshotAction(BaseAction):
     NAME_REGEX = re.compile(r'[^\w^_^-]')
     TEMP_DIRECTORY = '/tmp'
 
+    @property
+    def id(self):
+        """ID string for step"""
+        return f"Screenshot"
 
-    def _execute(self, selenium_instance, element):
-        """Press keyboard key"""
+    @property
+    def description(self):
+        """Friendly description of step"""
+        return f"Taking screenshot of browser: {self.screenshot_file_name}"
+
+    @property
+    def screenshot_file_name(self):
+        """Return name of screenshot file"""
         # Handle None screenshot name
         screenshot_name = self._config or ''
 
@@ -25,7 +35,11 @@ class ScreenshotAction(BaseAction):
         if not screenshot_name:
             raise Exception('Screenshot name is invalid')
 
-        screenshot_path = os.path.join(self.TEMP_DIRECTORY, '{}.png'.format(screenshot_name))
+        return f"{screenshot_name}.png"
+
+    def _execute(self, selenium_instance, element):
+        """Press keyboard key"""
+        screenshot_path = os.path.join(self.TEMP_DIRECTORY, self.screenshot_file_name)
 
         selenium_instance.save_screenshot(screenshot_path)
 

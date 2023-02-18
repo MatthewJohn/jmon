@@ -13,6 +13,16 @@ class CheckStep(BaseStep):
         """Return list of child support step classes"""
         return jmon.steps.checks.BaseCheck.__subclasses__()
 
+    @property
+    def id(self):
+        """ID string for step"""
+        return f"Checks"
+
+    @property
+    def description(self):
+        """Friendly description of step"""
+        return "Running check steps"
+
     def get_child_steps(self):
         """
         Get child steps
@@ -32,7 +42,9 @@ class CheckStep(BaseStep):
                 steps.append(
                     supported_actions[action_name](
                         run=self._run,
-                        config=self._config[action_name])
+                        config=self._config[action_name],
+                        parent=self
+                    )
                 )
         return steps
 

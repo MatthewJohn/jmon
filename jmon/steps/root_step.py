@@ -20,6 +20,16 @@ class RootStep(BaseStep):
             ActionStep
         ]
 
+    @property
+    def id(self):
+        """ID string for step"""
+        return "Root"
+
+    @property
+    def description(self):
+        """Friendly description of step"""
+        return "Root step"
+
     def _execute(self, selenium_instance, element):
         """Root module does nothing"""
         logger.debug(f"Starting root with config: {self._config}")
