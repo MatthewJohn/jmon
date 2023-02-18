@@ -44,7 +44,6 @@ def update_check_schedules():
         if needs_to_save:
             entry.save()
             if reschedule:
-
                 entry.reschedule()
 
     # Clear down session
