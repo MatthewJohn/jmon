@@ -35,7 +35,9 @@ class FindStep(BaseStep):
 
     def _get_find_type(self):
         """Get find type based on config"""
-        by_type, description, value = None
+        by_type = None
+        description = None
+        value = None
 
         if id := self._config.get('id'):
             by_type = By.ID
