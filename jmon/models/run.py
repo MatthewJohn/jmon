@@ -64,7 +64,7 @@ class Run(jmon.database.Base):
     @property
     def id(self):
         """Return string representation of run"""
-        return f"{self.check.name}-${self.timestamp_id}"
+        return f"{self.check.name}-{self.timestamp_id}"
 
     def set_success(self, success):
         """Set success value"""
