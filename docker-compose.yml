@@ -72,7 +72,6 @@ services:
     env_file:
      - .env
     links:
-     - server
      - database
      - broker
      - minio
@@ -85,7 +84,6 @@ services:
     env_file:
      - .env
     links:
-     - server
      - database
      - broker
      - minio
@@ -96,7 +94,6 @@ services:
     env_file:
      - .env
     links:
-     - server
      - database
      - broker
      - minio
