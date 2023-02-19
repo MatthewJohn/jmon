@@ -20,7 +20,11 @@ class ResponseCheck(BaseCheck):
         return f"Check response code matches: {self._config}"
 
     @retry(count=5, interval=0.5)
+    def _check_response_code(self):
+        return True
+
     def _execute(self, selenium_instance, element):
         """Check response code"""
         logger.info("Checking response")
+        self._check_response_code()
         raise NotImplementedError

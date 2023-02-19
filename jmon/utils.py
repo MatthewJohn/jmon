@@ -10,15 +10,14 @@ def retry(count, interval):
         def execute_attempt(*args, **kwargs):
             throw_exception = None
             for itx in range(count):
-                try:
-                    return func(*args, **kwargs)
-                except Exception as exc:
-                    throw_exception = exc
-
+                res = func(*args, **kwargs)
+                if res is not None:
+                    return res
+                else:
                     sleep(interval)
-                    logger.error(f"Error during step ({itx + 1}/{count}): {exc}")
+                    logger.error(f"Retrying step ({itx + 1}/{count})")
             else:
-                raise throw_exception
+                return False
 
         return execute_attempt
     return wrapper

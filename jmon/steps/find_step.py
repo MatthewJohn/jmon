@@ -32,7 +32,7 @@ class FindStep(BaseStep):
     def description(self):
         """Friendly description of step"""
         _, description, _ = self._get_find_type()
-        return description
+        return f"Find element {description}"
 
     def _get_find_type(self):
         """Get find type based on config"""
@@ -61,7 +61,7 @@ class FindStep(BaseStep):
 
             # Search by XPATH
             by_type = By.XPATH
-            value = f"//{tag}[@{xpath_key}='{xpath_value}']"
+            value = f".//{tag}[contains({xpath_key}(), '{xpath_value}')]"
 
         elif class_name := self._config.get('class'):
             by_type = By.CLASS_NAME
@@ -76,12 +76,19 @@ class FindStep(BaseStep):
         return by_type, description, value
 
     @retry(count=5, interval=0.5)
-    def _execute(self, selenium_instance, element):
-        """Find element on page"""
-        by_type, _, value, = self._get_find_type()
+    def _find_element(self, element, by_type, value):
+        """Find element"""
         try:
             return element.find_element(by_type, value)
         except selenium.common.exceptions.NoSuchElementException as exc:
-            self._set_status(StepStatus.FAILED)
             self._logger.error("Could not find element")
             self._logger.debug(str(exc))
+            return None
+
+    def _execute(self, selenium_instance, element):
+        """Find element on page"""
+        by_type, _, value, = self._get_find_type()
+        element = self._find_element(element, by_type, value)
+        if not element:
+            self._set_status(StepStatus.FAILED)
+        return element
