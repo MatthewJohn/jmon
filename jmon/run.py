@@ -9,6 +9,7 @@ from jmon.logger import logger
 from jmon.artifact_storage import ArtifactStorage
 from jmon.result_database import ResultMetricAverageSuccessRate, ResultDatabase, ResultMetricLatestStatus
 import jmon.models.run
+from jmon.steps.root_step import RootStep
 
 
 class Run:
@@ -27,12 +28,19 @@ class Run:
         formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s')
         self._log_handler.setFormatter(formatter)
 
+        self._root_step = RootStep(run=self, config=self.check.steps, parent=None)
+
     @property
     def logger(self):
         """Return logger"""
         if self._logger is None:
             raise Exception("Attempt to access run logger before start() called")
         return self._logger
+
+    @property
+    def root_step(self):
+        """Return root step instance"""
+        return self._root_step
 
     def start(self):
         """Start run, setting up db run object and logging"""
