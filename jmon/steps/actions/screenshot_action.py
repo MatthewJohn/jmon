@@ -2,6 +2,8 @@
 import os
 import re
 from selenium.webdriver.common.keys import Keys
+from jmon.client_type import ClientType
+from jmon.step_state import SeleniumStepState
 
 from jmon.steps.actions.base_action import BaseAction
 from jmon.logger import logger
@@ -12,6 +14,13 @@ class ScreenshotAction(BaseAction):
     CONFIG_KEY = "screenshot"
     NAME_REGEX = re.compile(r'[^\w^_^-]')
     TEMP_DIRECTORY = '/tmp'
+
+    @property
+    def supported_clients(self):
+        """Return list of supported clients"""
+        return [
+            ClientType.BROWSER_FIREFOX
+        ]
 
     @property
     def id(self):
@@ -37,12 +46,10 @@ class ScreenshotAction(BaseAction):
 
         return f"{screenshot_name}.png"
 
-    def _execute(self, selenium_instance, element):
+    def execute_selenium(self, state: SeleniumStepState):
         """Press keyboard key"""
         screenshot_path = os.path.join(self.TEMP_DIRECTORY, self.screenshot_file_name)
 
-        selenium_instance.save_screenshot(screenshot_path)
+        state.selenium_instance.save_screenshot(screenshot_path)
 
         self._run.register_artifact(screenshot_path)
-
-        return element

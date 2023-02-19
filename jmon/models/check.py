@@ -4,6 +4,7 @@ import sqlalchemy
 
 import yaml
 import json
+from jmon.client_type import ClientType
 
 import jmon.database
 import jmon.config
@@ -51,6 +52,7 @@ class Check(jmon.database.Base):
 
         instance.steps = steps
         instance.screenshot_on_error = content.get("screenshot_on_error")
+        instance.client = ClientType(content.get("client")) if content.get("client") else None
         instance.interval = int(content.get("interval", 0))
 
         session.add(instance)
@@ -65,6 +67,7 @@ class Check(jmon.database.Base):
     name = sqlalchemy.Column(jmon.database.Database.GeneralString, primary_key=True)
     screenshot_on_error = sqlalchemy.Column(sqlalchemy.Boolean)
     interval = sqlalchemy.Column(sqlalchemy.Integer)
+    client = sqlalchemy.Column(sqlalchemy.Enum(ClientType), default=None)
     _steps = sqlalchemy.Column(jmon.database.Database.LargeString, name="steps")
 
     @property

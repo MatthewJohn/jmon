@@ -3,6 +3,7 @@
 from io import StringIO
 import logging
 from jmon.logger import logger
+from jmon.step_state import StepState
 from jmon.step_status import StepStatus
 
 
@@ -41,6 +42,11 @@ class BaseStep:
     @property
     def description(self):
         """Friendly description of step"""
+        raise NotImplementedError
+
+    @property
+    def supported_clients(self):
+        """Return list of supported clients"""
         raise NotImplementedError
 
     @property
@@ -105,6 +111,25 @@ class BaseStep:
 
         return self._child_steps
 
+    def _check_valid_requests_response(self, element):
+        """Check that the execution argument is a valid repsonse"""
+        if element is None:
+            self._set_status(StepStatus.FAILED)
+            self._logger.error("This step requires a request to have been made")
+            return True
+        return False
+
+    def get_supported_clients(self, supported_clients):
+        """Return filtered list of supported clients"""
+        supported_clients = [
+            client
+            for client in supported_clients
+            if client in self.supported_clients
+        ]
+        for child_step in self.get_child_steps():
+            supported_clients = child_step.get_supported_clients(supported_clients)
+        return supported_clients
+
     @property
     def supported_child_steps(self):
         """Return list of child support step classes"""
@@ -118,8 +143,12 @@ class BaseStep:
             if child_step.CONFIG_KEY
         }
 
-    def _execute(self, selenium_instance, element):
-        """Execute step"""
+    def execute_selenium(self, state):
+        """Execute step using selenium"""
+        raise NotImplementedError
+
+    def execute_requests(self, state):
+        """Execute step using requests"""
         raise NotImplementedError
 
     def _set_status(self, status):
@@ -130,17 +159,17 @@ class BaseStep:
             self._logger.info(f"Step completed")
         self._status = status
 
-    def execute(self, selenium_instance, element):
+    def execute(self, execution_method, state: StepState):
         """Execute the current step and then execute each of the child steps"""
         self._status = StepStatus.RUNNING
 
         self._logger.info(f"Starting {self.id}")
         self._logger.info(self.description)
 
-        element = self._execute(selenium_instance, element)
+        getattr(self, execution_method)(state=state)
 
         if self.status is StepStatus.FAILED:
-            return element, self.status
+            return self.status
 
         # If child steps do not form part of this step,
         # mark status as success, if not already failed.
@@ -150,7 +179,13 @@ class BaseStep:
         child_status = None
 
         for step in self.get_child_steps():
-            _, child_status = step.execute(selenium_instance, element)
+            child_state = state.clone_to_child()
+            child_status = step.execute(
+                execution_method=execution_method,
+                state=child_state
+            )
+
+            state.integrate_from_child(child_state)
 
             # If child step has failed, return early
             if child_status is StepStatus.FAILED:
@@ -163,4 +198,4 @@ class BaseStep:
             else:
                 self._set_status(StepStatus.SUCCESS)
 
-        return element, (self.status if child_status is not StepStatus.FAILED else StepStatus.FAILED)
+        return (self.status if child_status is not StepStatus.FAILED else StepStatus.FAILED)

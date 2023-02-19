@@ -8,7 +8,7 @@ from jmon.logger import logger
 def retry(count, interval):
     def wrapper(func):
         def execute_attempt(*args, **kwargs):
-            throw_exception = None
+            res = None
             for itx in range(count):
                 res = func(*args, **kwargs)
                 if res is not None:
@@ -17,7 +17,7 @@ def retry(count, interval):
                     sleep(interval)
                     logger.error(f"Retrying step ({itx + 1}/{count})")
             else:
-                return False
+                return res
 
         return execute_attempt
     return wrapper
