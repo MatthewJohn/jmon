@@ -32,7 +32,7 @@ class FindStep(BaseStep):
     def description(self):
         """Friendly description of step"""
         _, description, _ = self._get_find_type()
-        return description
+        return f"Find element {description}"
 
     def _get_find_type(self):
         """Get find type based on config"""
