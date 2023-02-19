@@ -2,6 +2,7 @@
 
 from jmon.client_type import ClientType
 from jmon.logger import logger
+from jmon.step_state import RequestsStepState, SeleniumStepState
 from jmon.steps.base_step import BaseStep
 from jmon.steps.goto_step import GotoStep
 from jmon.steps.find_step import FindStep
@@ -39,12 +40,10 @@ class RootStep(BaseStep):
         """Friendly description of step"""
         return "Root step"
 
-    def execute_requests(self, element):
+    def execute_requests(self, state: RequestsStepState):
         """Root module does nothing"""
         self._logger.debug(f"Starting root with config: {self._config}")
-        return element
 
-    def execute_selenium(self, selenium_instance, element):
+    def execute_selenium(self, state: SeleniumStepState):
         """Root module does nothing"""
         self._logger.debug(f"Starting root with config: {self._config}")
-        return element

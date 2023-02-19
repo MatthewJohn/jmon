@@ -1,6 +1,7 @@
 
 
 from jmon.client_type import ClientType
+from jmon.step_state import SeleniumStepState
 from jmon.step_status import StepStatus
 from jmon.steps.checks.base_check import BaseCheck
 from jmon.logger import logger
@@ -37,9 +38,7 @@ class TitleCheck(BaseCheck):
             return None
         return True
 
-    def execute_selenium(self, selenium_instance, element):
+    def execute_selenium(self, state: SeleniumStepState):
         """Check page title"""
-        if not self._check_title(selenium_instance, self._config):
+        if not self._check_title(state.selenium_instance, self._config):
             self._set_status(StepStatus.FAILED)
-
-        return element

@@ -1,6 +1,7 @@
 
 from selenium.webdriver.common.keys import Keys
 from jmon.client_type import ClientType
+from jmon.step_state import SeleniumStepState
 from jmon.step_status import StepStatus
 
 from jmon.steps.actions.base_action import BaseAction
@@ -28,13 +29,11 @@ class PressAction(BaseAction):
         """Friendly description of step"""
         return f"Pressing key: {self._config}"
 
-    def execute_selenium(self, selenium_instance, element):
+    def execute_selenium(self, state: SeleniumStepState):
         """Press keyboard key"""
         if self._config.lower() == "enter":
-            element.send_keys(Keys.ENTER)
+            state.element.send_keys(Keys.ENTER)
 
         else:
             self._set_status(StepStatus.FAILED)
             self._logger.error(f'Unknown press action: {self._config}')
-
-        return element

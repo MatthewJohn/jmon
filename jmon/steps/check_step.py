@@ -1,5 +1,6 @@
 
 from jmon.client_type import ClientType
+from jmon.step_state import RequestsStepState, SeleniumStepState
 from jmon.steps.base_step import BaseStep
 import jmon.steps.checks
 from jmon.logger import logger
@@ -59,12 +60,12 @@ class CheckStep(BaseStep):
                     )
         return self._child_steps
 
-    def execute_requests(self, element):
+    def execute_requests(self, state: RequestsStepState):
         """Execute step"""
         # Do nothing, let sub-checks perform checks
-        return element
+        pass
 
-    def execute_selenium(self, selenium_instance, element):
+    def execute_selenium(self, state: SeleniumStepState):
         """Execute step"""
         # Do nothing, let sub-checks perform checks
-        return element
+        pass

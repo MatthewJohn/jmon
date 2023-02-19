@@ -3,6 +3,7 @@
 from io import StringIO
 import logging
 from jmon.logger import logger
+from jmon.step_state import StepState
 from jmon.step_status import StepStatus
 
 
@@ -142,11 +143,11 @@ class BaseStep:
             if child_step.CONFIG_KEY
         }
 
-    def execute_selenium(self, selenium_instance, element):
+    def execute_selenium(self, state):
         """Execute step using selenium"""
         raise NotImplementedError
 
-    def execute_requests(self, element):
+    def execute_requests(self, state):
         """Execute step using requests"""
         raise NotImplementedError
 
@@ -158,17 +159,17 @@ class BaseStep:
             self._logger.info(f"Step completed")
         self._status = status
 
-    def execute(self, execution_method, element, **kwargs):
+    def execute(self, execution_method, state: StepState):
         """Execute the current step and then execute each of the child steps"""
         self._status = StepStatus.RUNNING
 
         self._logger.info(f"Starting {self.id}")
         self._logger.info(self.description)
 
-        element = getattr(self, execution_method)(element=element, **kwargs)
+        getattr(self, execution_method)(state=state)
 
         if self.status is StepStatus.FAILED:
-            return element, self.status
+            return self.status
 
         # If child steps do not form part of this step,
         # mark status as success, if not already failed.
@@ -178,7 +179,13 @@ class BaseStep:
         child_status = None
 
         for step in self.get_child_steps():
-            _, child_status = step.execute(execution_method, element, **kwargs)
+            child_state = state.clone_to_child()
+            child_status = step.execute(
+                execution_method=execution_method,
+                state=child_state
+            )
+
+            state.integrate_from_child(child_state)
 
             # If child step has failed, return early
             if child_status is StepStatus.FAILED:
@@ -191,4 +198,4 @@ class BaseStep:
             else:
                 self._set_status(StepStatus.SUCCESS)
 
-        return element, (self.status if child_status is not StepStatus.FAILED else StepStatus.FAILED)
+        return (self.status if child_status is not StepStatus.FAILED else StepStatus.FAILED)

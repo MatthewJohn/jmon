@@ -4,6 +4,7 @@ from time import sleep
 from pyvirtualdisplay import Display
 import selenium
 from jmon.client_type import ClientType
+from jmon.step_state import RequestsStepState, SeleniumStepState
 from jmon.step_status import StepStatus
 
 from jmon.steps import RootStep
@@ -49,16 +50,19 @@ class Runner:
 
         if client_type is ClientType.REQUESTS:
             # Execute using requests
-            _, status = run.root_step.execute(
+            status = run.root_step.execute(
                 execution_method='execute_requests',
-                element=None
+                state=RequestsStepState(None)
             )
         elif client_type is ClientType.BROWSER_FIREFOX:
+
             selenium_instance = self.get_selenium_instance()
-            _, status = run.root_step.execute(
+
+            root_state = SeleniumStepState(selenium_instance=selenium_instance, element=selenium_instance)
+
+            status = run.root_step.execute(
                 execution_method='execute_selenium',
-                selenium_instance=selenium_instance,
-                element=selenium_instance
+                state=root_state
             )
 
             if status is StepStatus.FAILED and run.check.should_screenshot_on_error:
@@ -71,8 +75,7 @@ class Runner:
                 )
                 error_screenshot.execute(
                     execution_method='execute_selenium',
-                    selenium_instance=selenium_instance,
-                    element=selenium_instance
+                    state=root_state
                 )
         else:
             raise Exception(f"Unknown client: {client_type}")

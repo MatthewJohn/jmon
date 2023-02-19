@@ -1,6 +1,7 @@
 
 
 from jmon.client_type import ClientType
+from jmon.step_state import RequestsStepState
 from jmon.step_status import StepStatus
 from jmon.steps.checks.base_check import BaseCheck
 from jmon.logger import logger
@@ -28,13 +29,11 @@ class ResponseCheck(BaseCheck):
         """Friendly description of step"""
         return f"Check response code matches: {self._config}"
 
-    def execute_requests(self, element):
+    def execute_requests(self, state: RequestsStepState):
         """Check response code"""
-        if self._check_valid_requests_response(element):
-            return element
+        if self._check_valid_requests_response(state.response):
+            return
 
-        if element.status_code != self._config:
-            self._logger.error(f"Expected status code: {self._config}, but got: {element.status_code}")
+        if state.response.status_code != self._config:
+            self._logger.error(f"Expected status code: {self._config}, but got: {state.response.status_code}")
             self._set_status(StepStatus.FAILED)
-
-        return element

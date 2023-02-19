@@ -1,5 +1,6 @@
 
 from jmon.client_type import ClientType
+from jmon.step_state import SeleniumStepState
 from jmon.steps.base_step import BaseStep
 import jmon.steps.actions
 from jmon.logger import logger
@@ -63,7 +64,7 @@ class ActionStep(BaseStep):
                     )
         return self._child_steps
 
-    def execute_selenium(self, selenium_instance, element):
+    def execute_selenium(self, state: SeleniumStepState):
         """Do nothihng"""
         # Do nothing, let sub-actions perform actions
-        return element
+        pass

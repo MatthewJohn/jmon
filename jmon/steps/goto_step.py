@@ -2,6 +2,7 @@
 import requests
 import selenium.common.exceptions
 from jmon.client_type import ClientType
+from jmon.step_state import RequestsStepState, SeleniumStepState
 
 from jmon.step_status import StepStatus
 from jmon.steps.base_step import BaseStep
@@ -35,16 +36,14 @@ class GotoStep(BaseStep):
         """Friendly description of step"""
         return f"Going to URL: {self._config}"
 
-    def execute_requests(self, element):
+    def execute_requests(self, state: RequestsStepState):
         """Execute step for requests"""
-        return requests.get(self._config)
+        state.response = requests.get(self._config)
 
-    def execute_selenium(self, selenium_instance, element):
+    def execute_selenium(self, state: SeleniumStepState):
         """Goto URL"""
         try:
-            selenium_instance.get(self._config)
+            state.selenium_instance.get(self._config)
         except selenium.common.exceptions.WebDriverException as exc:
             self._set_status(StepStatus.FAILED)
             self._logger.error(str(exc))
-
-        return element

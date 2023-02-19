@@ -2,6 +2,7 @@
 import selenium.common.exceptions
 from selenium.webdriver.common.by import By
 from jmon.client_type import ClientType
+from jmon.step_state import SeleniumStepState
 from jmon.step_status import StepStatus
 
 from jmon.steps.action_step import ActionStep
@@ -93,10 +94,10 @@ class FindStep(BaseStep):
             self._logger.debug(str(exc))
             return None
 
-    def execute_selenium(self, selenium_instance, element):
+    def execute_selenium(self, state: SeleniumStepState):
         """Find element on page"""
         by_type, _, value, = self._get_find_type()
-        element = self._find_element(element, by_type, value)
+        element = self._find_element(state.element, by_type, value)
         if not element:
             self._set_status(StepStatus.FAILED)
-        return element
+        state.element = element

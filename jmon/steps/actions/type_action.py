@@ -1,6 +1,7 @@
 
 
 from jmon.client_type import ClientType
+from jmon.step_state import SeleniumStepState
 from jmon.steps.actions.base_action import BaseAction
 from jmon.logger import logger
 
@@ -26,7 +27,6 @@ class TypeAction(BaseAction):
         """Friendly description of step"""
         return f"Typing text into browser element: {self._config}"
 
-    def execute_selenium(self, selenium_instance, element):
+    def execute_selenium(self, state: SeleniumStepState):
         """Type text"""
-        element.send_keys(self._config)
-        return element
+        state.element.send_keys(self._config)
