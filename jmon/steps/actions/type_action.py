@@ -1,5 +1,6 @@
 
 
+from jmon.client_type import ClientType
 from jmon.steps.actions.base_action import BaseAction
 from jmon.logger import logger
 
@@ -7,6 +8,13 @@ from jmon.logger import logger
 class TypeAction(BaseAction):
 
     CONFIG_KEY = "type"
+
+    @property
+    def supported_clients(self):
+        """Return list of supported clients"""
+        return [
+            ClientType.BROWSER_FIREFOX
+        ]
 
     @property
     def id(self):
@@ -18,7 +26,7 @@ class TypeAction(BaseAction):
         """Friendly description of step"""
         return f"Typing text into browser element: {self._config}"
 
-    def _execute(self, selenium_instance, element):
+    def execute_selenium(self, selenium_instance, element):
         """Type text"""
         element.send_keys(self._config)
         return element

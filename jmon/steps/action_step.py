@@ -1,4 +1,5 @@
 
+from jmon.client_type import ClientType
 from jmon.steps.base_step import BaseStep
 import jmon.steps.actions
 from jmon.logger import logger
@@ -12,6 +13,13 @@ class ActionStep(BaseStep):
     def supported_child_steps(self):
         """Return list of child support step classes"""
         return jmon.steps.actions.BaseAction.__subclasses__()
+
+    @property
+    def supported_clients(self):
+        """Return list of supported clients"""
+        return [
+            ClientType.BROWSER_FIREFOX
+        ]
 
     @property
     def id(self):
@@ -55,7 +63,7 @@ class ActionStep(BaseStep):
                     )
         return self._child_steps
 
-    def _execute(self, selenium_instance, element):
+    def execute_selenium(self, selenium_instance, element):
         """Do nothihng"""
         # Do nothing, let sub-actions perform actions
         return element

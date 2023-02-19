@@ -1,6 +1,7 @@
 
 import selenium.common.exceptions
 from selenium.webdriver.common.by import By
+from jmon.client_type import ClientType
 from jmon.step_status import StepStatus
 
 from jmon.steps.action_step import ActionStep
@@ -13,6 +14,13 @@ from jmon.utils import retry
 class FindStep(BaseStep):
 
     CONFIG_KEY = "find"
+
+    @property
+    def supported_clients(self):
+        """Return list of supported clients"""
+        return [
+            ClientType.BROWSER_FIREFOX
+        ]
 
     @property
     def supported_child_steps(self):
@@ -85,7 +93,7 @@ class FindStep(BaseStep):
             self._logger.debug(str(exc))
             return None
 
-    def _execute(self, selenium_instance, element):
+    def execute_selenium(self, selenium_instance, element):
         """Find element on page"""
         by_type, _, value, = self._get_find_type()
         element = self._find_element(element, by_type, value)

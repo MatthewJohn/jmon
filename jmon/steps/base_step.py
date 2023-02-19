@@ -44,6 +44,11 @@ class BaseStep:
         raise NotImplementedError
 
     @property
+    def supported_clients(self):
+        """Return list of supported clients"""
+        raise NotImplementedError
+
+    @property
     def status(self):
         """Return current status"""
         return self._status
@@ -105,6 +110,25 @@ class BaseStep:
 
         return self._child_steps
 
+    def _check_valid_requests_response(self, element):
+        """Check that the execution argument is a valid repsonse"""
+        if element is None:
+            self._set_status(StepStatus.FAILED)
+            self._logger.error("This step requires a request to have been made")
+            return True
+        return False
+
+    def get_supported_clients(self, supported_clients):
+        """Return filtered list of supported clients"""
+        supported_clients = [
+            client
+            for client in supported_clients
+            if client in self.supported_clients
+        ]
+        for child_step in self.get_child_steps():
+            supported_clients = child_step.get_supported_clients(supported_clients)
+        return supported_clients
+
     @property
     def supported_child_steps(self):
         """Return list of child support step classes"""
@@ -118,8 +142,12 @@ class BaseStep:
             if child_step.CONFIG_KEY
         }
 
-    def _execute(self, selenium_instance, element):
-        """Execute step"""
+    def execute_selenium(self, selenium_instance, element):
+        """Execute step using selenium"""
+        raise NotImplementedError
+
+    def execute_requests(self, element):
+        """Execute step using requests"""
         raise NotImplementedError
 
     def _set_status(self, status):
@@ -130,14 +158,14 @@ class BaseStep:
             self._logger.info(f"Step completed")
         self._status = status
 
-    def execute(self, selenium_instance, element):
+    def execute(self, execution_method, element, **kwargs):
         """Execute the current step and then execute each of the child steps"""
         self._status = StepStatus.RUNNING
 
         self._logger.info(f"Starting {self.id}")
         self._logger.info(self.description)
 
-        element = self._execute(selenium_instance, element)
+        element = getattr(self, execution_method)(element=element, **kwargs)
 
         if self.status is StepStatus.FAILED:
             return element, self.status
@@ -150,7 +178,7 @@ class BaseStep:
         child_status = None
 
         for step in self.get_child_steps():
-            _, child_status = step.execute(selenium_instance, element)
+            _, child_status = step.execute(execution_method, element, **kwargs)
 
             # If child step has failed, return early
             if child_status is StepStatus.FAILED:

@@ -7,9 +7,9 @@ from jmon.logger import logger
 from jmon.utils import retry
 
 
-class ResponseCheck(BaseCheck):
+class JsonCheck(BaseCheck):
 
-    CONFIG_KEY = "response"
+    CONFIG_KEY = "json"
 
     @property
     def supported_clients(self):
@@ -21,20 +21,20 @@ class ResponseCheck(BaseCheck):
     @property
     def id(self):
         """ID string for step"""
-        return f"CheckResponseCode"
+        return f"CheckJson"
 
     @property
     def description(self):
         """Friendly description of step"""
-        return f"Check response code matches: {self._config}"
+        return f"Check JSON response matches: {self._config}"
 
     def execute_requests(self, element):
         """Check response code"""
         if self._check_valid_requests_response(element):
             return element
 
-        if element.status_code != self._config:
-            self._logger.error(f"Expected status code: {self._config}, but got: {element.status_code}")
+        if element.json() != self._config:
+            self._logger.error(f"Expected JSON response: {self._config}, but got: {element.json()}")
             self._set_status(StepStatus.FAILED)
 
         return element

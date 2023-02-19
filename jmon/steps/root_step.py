@@ -1,5 +1,6 @@
 
 
+from jmon.client_type import ClientType
 from jmon.logger import logger
 from jmon.steps.base_step import BaseStep
 from jmon.steps.goto_step import GotoStep
@@ -9,6 +10,14 @@ from jmon.steps.action_step import ActionStep
 
 
 class RootStep(BaseStep):
+
+    @property
+    def supported_clients(self):
+        """Return list of supported clients"""
+        return [
+            ClientType.BROWSER_FIREFOX,
+            ClientType.REQUESTS
+        ]
 
     @property
     def supported_child_steps(self):
@@ -30,7 +39,12 @@ class RootStep(BaseStep):
         """Friendly description of step"""
         return "Root step"
 
-    def _execute(self, selenium_instance, element):
+    def execute_requests(self, element):
+        """Root module does nothing"""
+        self._logger.debug(f"Starting root with config: {self._config}")
+        return element
+
+    def execute_selenium(self, selenium_instance, element):
         """Root module does nothing"""
         self._logger.debug(f"Starting root with config: {self._config}")
         return element

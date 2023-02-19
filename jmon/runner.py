@@ -3,6 +3,7 @@ from time import sleep
 
 from pyvirtualdisplay import Display
 import selenium
+from jmon.client_type import ClientType
 from jmon.step_status import StepStatus
 
 from jmon.steps import RootStep
@@ -35,26 +36,45 @@ class Runner:
 
     def perform_check(self, run):
         """Setup selenium and perform checks"""
-        selenium_instance = self.get_selenium_instance()
+        supported_clients = run.root_step.get_supported_clients([
+            ClientType.REQUESTS,
+            ClientType.BROWSER_FIREFOX
+        ])
 
-        root_step = RootStep(run=run, config=run.check.steps, parent=None)
+        run.logger.info(f"Supported clients: {supported_clients}")
+        if not supported_clients:
+            raise Exception("There are no supported clients for check")
+        client_type = supported_clients[0]
+        run.logger.info(f"Using client: {client_type}")
 
-        _, status = root_step.execute(
-            selenium_instance=selenium_instance,
-            element=selenium_instance
-        )
-
-        if status is StepStatus.FAILED and run.check.should_screenshot_on_error:
-            # Perform failure screenshot, if configured
-            error_screenshot = ScreenshotAction(
-                run=run,
-                config="failure",
-                parent=root_step,
-                enable_log=False
+        if client_type is ClientType.REQUESTS:
+            # Execute using requests
+            _, status = run.root_step.execute(
+                execution_method='execute_requests',
+                element=None
             )
-            error_screenshot.execute(
+        elif client_type is ClientType.BROWSER_FIREFOX:
+            selenium_instance = self.get_selenium_instance()
+            _, status = run.root_step.execute(
+                execution_method='execute_selenium',
                 selenium_instance=selenium_instance,
                 element=selenium_instance
             )
+
+            if status is StepStatus.FAILED and run.check.should_screenshot_on_error:
+                # Perform failure screenshot, if configured
+                error_screenshot = ScreenshotAction(
+                    run=run,
+                    config="failure",
+                    parent=run.root_step,
+                    enable_log=False
+                )
+                error_screenshot.execute(
+                    execution_method='execute_selenium',
+                    selenium_instance=selenium_instance,
+                    element=selenium_instance
+                )
+        else:
+            raise Exception(f"Unknown client: {client_type}")
 
         return status

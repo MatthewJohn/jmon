@@ -1,4 +1,5 @@
 
+from jmon.client_type import ClientType
 from jmon.steps.base_step import BaseStep
 import jmon.steps.checks
 from jmon.logger import logger
@@ -8,6 +9,14 @@ class CheckStep(BaseStep):
 
     CONFIG_KEY = "check"
     CHILD_STEPS_FORM_STEP = True
+
+    @property
+    def supported_clients(self):
+        """Return list of supported clients"""
+        return [
+            ClientType.BROWSER_FIREFOX,
+            ClientType.REQUESTS
+        ]
 
     @property
     def supported_child_steps(self):
@@ -50,7 +59,12 @@ class CheckStep(BaseStep):
                     )
         return self._child_steps
 
-    def _execute(self, selenium_instance, element):
-        """Check variables attributes of the page/element"""
+    def execute_requests(self, element):
+        """Execute step"""
+        # Do nothing, let sub-checks perform checks
+        return element
+
+    def execute_selenium(self, selenium_instance, element):
+        """Execute step"""
         # Do nothing, let sub-checks perform checks
         return element

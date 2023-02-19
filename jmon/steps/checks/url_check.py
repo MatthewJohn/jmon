@@ -1,4 +1,6 @@
 
+import requests
+from jmon.client_type import ClientType
 from jmon.step_status import StepStatus
 from jmon.steps.checks.base_check import BaseCheck
 from jmon.logger import logger
@@ -8,6 +10,14 @@ from jmon.utils import retry
 class UrlCheck(BaseCheck):
 
     CONFIG_KEY = "url"
+
+    @property
+    def supported_clients(self):
+        """Return list of supported clients"""
+        return [
+            ClientType.REQUESTS,
+            ClientType.BROWSER_FIREFOX
+        ]
 
     @property
     def id(self):
@@ -28,7 +38,16 @@ class UrlCheck(BaseCheck):
             return None
         return True
 
-    def _execute(self, selenium_instance, element):
+    def execute_requests(self, element):
+        """Check URL"""
+        if self._check_valid_requests_response(element):
+            return element
+        if element.url != self._config:
+            self._logger.error(f'URL does not match excepted url. Expected "{self._config}" and got: {element.url}')
+            self._set_status(StepStatus.FAILED)
+        return element
+
+    def execute_selenium(self, selenium_instance, element):
         """Check page URL"""
         if self._check_url(selenium_instance, self._config) is None:
             self._set_status(StepStatus.FAILED)
