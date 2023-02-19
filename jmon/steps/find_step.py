@@ -76,12 +76,19 @@ class FindStep(BaseStep):
         return by_type, description, value
 
     @retry(count=5, interval=0.5)
-    def _execute(self, selenium_instance, element):
-        """Find element on page"""
-        by_type, _, value, = self._get_find_type()
+    def _find_element(self, element, by_type, value):
+        """Find element"""
         try:
             return element.find_element(by_type, value)
         except selenium.common.exceptions.NoSuchElementException as exc:
-            self._set_status(StepStatus.FAILED)
             self._logger.error("Could not find element")
             self._logger.debug(str(exc))
+            return None
+
+    def _execute(self, selenium_instance, element):
+        """Find element on page"""
+        by_type, _, value, = self._get_find_type()
+        element = self._find_element(element, by_type, value)
+        if not element:
+            self._set_status(StepStatus.FAILED)
+        return element
