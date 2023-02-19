@@ -61,7 +61,7 @@ class FindStep(BaseStep):
 
             # Search by XPATH
             by_type = By.XPATH
-            value = f"//{tag}[@{xpath_key}='{xpath_value}']"
+            value = f".//{tag}[contains({xpath_key}(), '{xpath_value}')]"
 
         elif class_name := self._config.get('class'):
             by_type = By.CLASS_NAME
