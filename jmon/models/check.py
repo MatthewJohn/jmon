@@ -9,6 +9,8 @@ from jmon.client_type import ClientType
 import jmon.database
 import jmon.config
 import jmon.models.run
+from jmon.steps.root_step import RootStep
+import jmon.run
 
 
 class Check(jmon.database.Base):
@@ -103,3 +105,26 @@ class Check(jmon.database.Base):
 
         # Return default check interval
         return config.DEFAULT_CHECK_INTERVAL
+
+    @property
+    def routing_key(self):
+        """Get routing key for task"""
+        root_step = RootStep(run=jmon.run.Run(check=self), config=self.steps, parent=None)
+        supported_clients = root_step.get_supported_clients([
+            ClientType.REQUESTS,
+            ClientType.BROWSER_CHROME,
+            ClientType.BROWSER_FIREFOX
+        ])
+
+        if not supported_clients:
+            return None
+
+        routing_key_parts = []
+
+        if ClientType.REQUESTS in supported_clients:
+            routing_key_parts.append('requests')
+        if ClientType.BROWSER_CHROME in supported_clients:
+            routing_key_parts.append('chrome')
+        if ClientType.BROWSER_FIREFOX in supported_clients:
+            routing_key_parts.append('firefox')
+        return f"check.{'_'.join(routing_key_parts)}"

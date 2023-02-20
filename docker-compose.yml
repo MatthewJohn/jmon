@@ -14,9 +14,20 @@ services:
       POSTGRES_DB: $DB_NAME
 
   broker:
+    image: rabbitmq:3.11-management
+    ports:
+     - 5672:5672
+     - 15672:15672
+    env_file:
+     - .env
+    environment:
+      RABBITMQ_DEFAULT_USER: $BROKER_USERNAME
+      RABBITMQ_DEFAULT_PASS: $BROKER_PASSWORD
+
+  redis:
     image: redis:latest
 
-    command: redis-server --appendonly yes --requirepass $BROKER_PASSWORD
+    command: redis-server --appendonly yes --requirepass $REDIS_PASSWORD
     env_file:
      - .env
 
@@ -65,6 +76,7 @@ services:
     links:
      - database
      - broker
+     - redis
 
   scheduler:
     build: .
@@ -75,6 +87,7 @@ services:
      - database
      - broker
      - minio
+     - redis
 
   flower:
     build: .
@@ -87,13 +100,15 @@ services:
      - database
      - broker
      - minio
+     - redis
 
   agent:
     build: .
-    command: celery -A jmon.worker.app worker --concurrency=1 --loglevel=INFO
+    command: celery -A jmon.worker.app worker -Q default,requests,chrome,firefox --concurrency=1 --loglevel=INFO
     env_file:
      - .env
     links:
      - database
      - broker
      - minio
+     - redis

@@ -69,7 +69,7 @@ class BaseStep:
         self._logger.addHandler(self._log_handler)
 
         # Add log handlder from root of run, if configured to log
-        if self._should_log:
+        if self._should_log and self._run:
             self._logger.addHandler(self._run.log_handler)
 
     def get_child_steps(self):
