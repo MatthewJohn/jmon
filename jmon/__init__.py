@@ -26,13 +26,13 @@ task_exchange = Exchange('task', type='direct')
 
 app.conf.task_queues = (
     Queue('default', exchange=task_exchange, routing_key='task.default'),
-    Queue('requests', exchange=task_exchange),
-    Queue('requests_firefox', exchange=task_exchange),
-    Queue('requests_chrome', exchange=task_exchange),
-    Queue('requests_firefox_chrome', exchange=task_exchange),
-    Queue('firefox_chrome', exchange=task_exchange),
-    Queue('firefox', exchange=task_exchange),
-    Queue('chrome', exchange=task_exchange)
+    Queue(
+        'requests',
+        exchange=check_exchange,
+        ''
+    ),
+    Queue('firefox', exchange=check_exchange),
+    Queue('chrome', exchange=check_exchange)
 )
 app.conf.task_default_exchange = task_exchange.name
 app.conf.task_default_exchange_type = task_exchange.type
