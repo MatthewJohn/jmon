@@ -26,24 +26,13 @@ task_exchange = Exchange('task', type='direct')
 
 app.conf.task_queues = (
     Queue('default', exchange=task_exchange, routing_key='task.default'),
-    Queue('requests', bindings=[
-        binding(task_exchange, routing_key='check.requests'),
-        binding(task_exchange, routing_key='check.requests_firefox'),
-        binding(task_exchange, routing_key='check.requests_chrome'),
-        binding(task_exchange, routing_key='check.requests_chrome_firefox'),
-    ]),
-    Queue('firefox', bindings=[
-        binding(task_exchange, routing_key='check.firefox'),
-        binding(task_exchange, routing_key='check.requests_firefox'),
-        binding(task_exchange, routing_key='check.chrome_firefox'),
-        binding(task_exchange, routing_key='check.requests_chrome_firefox'),
-    ]),
-    Queue('chrome', bindings=[
-        binding(task_exchange, routing_key='check.chrome'),
-        binding(task_exchange, routing_key='check.requests_chrome'),
-        binding(task_exchange, routing_key='check.chrome_firefox'),
-        binding(task_exchange, routing_key='check.requests_chrome_firefox'),
-    ]),
+    Queue('requests', exchange=task_exchange),
+    Queue('requests_firefox', exchange=task_exchange),
+    Queue('requests_chrome', exchange=task_exchange),
+    Queue('requests_firefox_chrome', exchange=task_exchange),
+    Queue('firefox_chrome', exchange=task_exchange),
+    Queue('firefox', exchange=task_exchange),
+    Queue('chrome', exchange=task_exchange)
 )
 app.conf.task_default_exchange = task_exchange.name
 app.conf.task_default_exchange_type = task_exchange.type

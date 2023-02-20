@@ -13,8 +13,8 @@ def update_check_schedules():
     """Add task schedules for each check in database."""
     checks = jmon.models.Check.get_all()
     for check in checks:
-        routing_key = check.routing_key
-        if not routing_key:
+        queue = check.queue
+        if not queue:
             logger.warn(f"Check does not have any compatible client types: {check.name}")
             continue
 
@@ -22,16 +22,16 @@ def update_check_schedules():
         interval = celery.schedules.schedule(run_every=interval_seconds)
 
         key = f'check_{check.name}'
-        print(f'Using routing key: {routing_key}')
+        print(f'Using queue key: {queue}')
 
         needs_to_save = False
         reschedule = False
         try:
             entry = RedBeatSchedulerEntry.from_key(key=f"redbeat:{key}", app=app)
-            if entry.schedule.run_every != interval.run_every or entry.options.get('routing_key') != routing_key:
+            if entry.schedule.run_every != interval.run_every or entry.options.get('queue') != queue:
                 # Update interval and set directive to save
                 entry.interval = interval
-                entry.options['routing_key'] = routing_key
+                entry.options['queue'] = queue
 
                 needs_to_save = True
 
@@ -48,7 +48,7 @@ def update_check_schedules():
                 args=[check.name],
                 app=app,
                 options={
-                    'routing_key': routing_key
+                    'queue': queue
                 }                
             )
             needs_to_save = True

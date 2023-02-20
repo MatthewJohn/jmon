@@ -107,8 +107,8 @@ class Check(jmon.database.Base):
         return config.DEFAULT_CHECK_INTERVAL
 
     @property
-    def routing_key(self):
-        """Get routing key for task"""
+    def queue(self):
+        """Get queue for task"""
         root_step = RootStep(run=jmon.run.Run(check=self), config=self.steps, parent=None)
         supported_clients = root_step.get_supported_clients([
             ClientType.REQUESTS,
@@ -119,7 +119,7 @@ class Check(jmon.database.Base):
         if not supported_clients:
             return None
 
-        routing_key_parts = []
+        routing_key_parts = ['check']
 
         if ClientType.REQUESTS in supported_clients:
             routing_key_parts.append('requests')
@@ -127,4 +127,4 @@ class Check(jmon.database.Base):
             routing_key_parts.append('chrome')
         if ClientType.BROWSER_FIREFOX in supported_clients:
             routing_key_parts.append('firefox')
-        return f"check.{'_'.join(routing_key_parts)}"
+        return "_".join(routing_key_parts)
