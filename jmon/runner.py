@@ -4,6 +4,7 @@ from time import sleep
 from pyvirtualdisplay import Display
 import selenium
 from selenium.webdriver.chrome.options import Options
+import selenium.common.exceptions
 
 from jmon.client_type import ClientType
 from jmon.step_state import RequestsStepState, SeleniumStepState
@@ -54,8 +55,18 @@ class Runner:
             Runner.SELENIUM_INSTANCE = browser_class(**kwargs)
             Runner.SELENIUM_INSTANCE.implicitly_wait(1)
 
-        # Remove cookies before starting
-        Runner.SELENIUM_INSTANCE.delete_all_cookies()
+        try:
+            # Remove cookies before starting
+            Runner.SELENIUM_INSTANCE.delete_all_cookies()
+
+        # Handle error caused by previous tab crash
+        except selenium.common.exceptions.InvalidSessionIdException:
+            # Invalid selenium
+            Runner.SELENIUM_INSTANCE.quit()
+            Runner.SELENIUM_INSTANCE.driver.close()
+            Runner.SELENIUM_INSTANCE = None
+            # Create new selenium instance
+            return Runner.get_selenium_instance(client_type)
 
         return Runner.SELENIUM_INSTANCE
 
