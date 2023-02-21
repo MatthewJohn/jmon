@@ -27,7 +27,6 @@ def update_check_schedules():
         interval = celery.schedules.schedule(run_every=interval_seconds)
 
         key = f'check_{check.name}'
-        print(f'Using task headers: {headers}')
 
         needs_to_save = False
         reschedule = False
