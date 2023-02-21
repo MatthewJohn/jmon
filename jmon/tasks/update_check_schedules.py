@@ -13,25 +13,32 @@ def update_check_schedules():
     """Add task schedules for each check in database."""
     checks = jmon.models.Check.get_all()
     for check in checks:
-        queue = check.queue
-        if not queue:
+        headers = check.task_headers
+        if not headers:
             logger.warn(f"Check does not have any compatible client types: {check.name}")
             continue
+
+        options = {
+            'headers': headers,
+            'exchange': 'check'
+        }
 
         interval_seconds = check.get_interval()
         interval = celery.schedules.schedule(run_every=interval_seconds)
 
         key = f'check_{check.name}'
-        print(f'Using queue key: {queue}')
+        print(f'Using task headers: {headers}')
 
         needs_to_save = False
         reschedule = False
         try:
             entry = RedBeatSchedulerEntry.from_key(key=f"redbeat:{key}", app=app)
-            if entry.schedule.run_every != interval.run_every or entry.options.get('queue') != queue:
+            if (entry.schedule.run_every != interval.run_every or
+                    entry.options.get('headers') != options['headers'] or
+                    entry.options.get('exchange') != options['exchange']):
                 # Update interval and set directive to save
                 entry.interval = interval
-                entry.options['queue'] = queue
+                entry.options.update(options)
 
                 needs_to_save = True
 
@@ -47,9 +54,7 @@ def update_check_schedules():
                 interval,
                 args=[check.name],
                 app=app,
-                options={
-                    'queue': queue
-                }                
+                options=options
             )
             needs_to_save = True
 

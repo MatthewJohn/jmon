@@ -1,4 +1,7 @@
 
+from celery.result import AsyncResult
+
+from jmon import app
 import jmon.models
 from jmon.run import Run
 from jmon.runner import Runner
@@ -7,7 +10,15 @@ import jmon.database
 from jmon.step_status import StepStatus
 
 
-def perform_check(check_name):
+def perform_check(self, check_name):
+
+    # Check if task has already executed due to being
+    # pushed to multiple queues and, if so,
+    # return the original result
+    res = AsyncResult(self.request.id, app=app)
+    if res.status != "PENDING":
+        return res.result
+
     # Get config for check
     session = jmon.database.Database.get_session()
     check = session.query(jmon.models.Check).filter(jmon.models.Check.name==check_name).first()

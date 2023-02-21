@@ -1,7 +1,6 @@
 
 from kombu import Queue, Exchange, binding
 
-
 from jmon.client_type import ClientType
 
 

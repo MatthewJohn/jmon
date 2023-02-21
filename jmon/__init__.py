@@ -23,16 +23,29 @@ app = Celery(
 app.conf.task_default_queue = 'default'
 
 task_exchange = Exchange('task', type='direct')
+check_exchange = Exchange('check', type='headers')
 
 app.conf.task_queues = (
     Queue('default', exchange=task_exchange, routing_key='task.default'),
     Queue(
         'requests',
-        exchange=check_exchange,
-        ''
+        bindings=[
+            binding(exchange=check_exchange, arguments={'x-match': 'any', 'requests': 'true'})
+        ]
     ),
-    Queue('firefox', exchange=check_exchange),
-    Queue('chrome', exchange=check_exchange)
+    Queue(
+        'firefox',
+        bindings=[
+            binding(exchange=check_exchange, arguments={'x-match': 'any', 'firefox': 'true'})
+        ]
+    ),
+    Queue(
+        'chrome',
+        exchange=check_exchange,
+        bindings=[
+            binding(exchange=check_exchange, arguments={'x-match': 'any', 'chrome': 'true'})
+        ]
+    )
 )
 app.conf.task_default_exchange = task_exchange.name
 app.conf.task_default_exchange_type = task_exchange.type
