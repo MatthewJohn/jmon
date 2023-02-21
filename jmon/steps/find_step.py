@@ -90,7 +90,7 @@ class FindStep(BaseStep):
         """Find element"""
         try:
             return element.find_element(by_type, value)
-        except selenium.common.exceptions.NoSuchElementException as exc:
+        except (selenium.common.exceptions.NoSuchElementException, selenium.common.exceptions.ElementNotInteractableException) as exc:
             self._logger.error("Could not find element")
             self._logger.debug(str(exc))
             return None
