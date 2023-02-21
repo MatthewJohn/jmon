@@ -53,6 +53,7 @@ class Runner:
 
         if Runner.SELENIUM_INSTANCE is None:
             Runner.SELENIUM_INSTANCE = browser_class(**kwargs)
+            Runner.SELENIUM_INSTANCE.maximize_window()
             Runner.SELENIUM_INSTANCE.implicitly_wait(1)
 
         try:
