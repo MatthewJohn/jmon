@@ -104,6 +104,10 @@ services:
 
   agent:
     build: .
+    # Specify the test types as queues (requests, chrome, firefox)
+    # At least once agent must have the 'default' queue
+    # Concurrency should always be set to 1 - to add more concurrency,
+    # scale the agent containers
     command: celery -A jmon.worker.app worker -Q default,requests,chrome,firefox --concurrency=1 --loglevel=INFO
     env_file:
      - .env
