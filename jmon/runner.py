@@ -47,6 +47,7 @@ class Runner:
         # down the old one
         if Runner.SELENIUM_INSTANCE and not isinstance(Runner.SELENIUM_INSTANCE, browser_class):
             Runner.SELENIUM_INSTANCE.quit()
+            Runner.SELENIUM_INSTANCE.driver.close()
             Runner.SELENIUM_INSTANCE = None
 
         if Runner.SELENIUM_INSTANCE is None:
