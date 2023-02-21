@@ -33,9 +33,10 @@ class Runner:
             browser_class = selenium.webdriver.Firefox
         elif client_type is ClientType.BROWSER_CHROME:
             browser_class = selenium.webdriver.Chrome
-            opts = Options()
-            opts.binary_location = "/usr/bin/chromium-browser"
-            kwargs["chrome_options"] = opts
+            options = Options()
+            options.binary_location = "/opt/chrome-linux/chrome"
+            options.add_argument('--no-sandbox')
+            kwargs["chrome_options"] = options
         else:
             raise Exception(f"Unrecognised selenium ClientType: {client_type}")
 

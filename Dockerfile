@@ -11,10 +11,15 @@ RUN apt-get update && \
         chromium-browser && \
     apt-get clean all
 
-RUN wget https://chromedriver.storage.googleapis.com/80.0.3987.106/chromedriver_linux64.zip && \
+RUN wget "https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F1072663%2Fchrome-linux.zip?generation=1668668877454764&alt=media" -O chrome-linux.zip && \
+    unzip chrome-linux.zip && \
+    rm chrome-linux.zip && \
+    mv chrome-linux /opt/
+
+RUN wget "https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F1072663%2Fchromedriver_linux64.zip?generation=1668668883584549&alt=media" -O chromedriver_linux64.zip && \
     unzip chromedriver_linux64.zip && \
     rm chromedriver_linux64.zip && \
-    mv chromedriver /usr/local/bin
+    mv chromedriver_linux64/chromedriver /usr/local/bin
 
 RUN apt-get update && apt-get install --assume-yes libpq-dev gcc && apt-get clean all
 
