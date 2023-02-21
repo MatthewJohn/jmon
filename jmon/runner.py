@@ -48,7 +48,6 @@ class Runner:
         # down the old one
         if Runner.SELENIUM_INSTANCE and not isinstance(Runner.SELENIUM_INSTANCE, browser_class):
             Runner.SELENIUM_INSTANCE.quit()
-            Runner.SELENIUM_INSTANCE.driver.close()
             Runner.SELENIUM_INSTANCE = None
 
         if Runner.SELENIUM_INSTANCE is None:
@@ -58,13 +57,13 @@ class Runner:
 
         try:
             # Remove cookies before starting
+            Runner.SELENIUM_INSTANCE.get('about:blank')
             Runner.SELENIUM_INSTANCE.delete_all_cookies()
 
         # Handle error caused by previous tab crash
         except selenium.common.exceptions.InvalidSessionIdException:
             # Invalid selenium
             Runner.SELENIUM_INSTANCE.quit()
-            Runner.SELENIUM_INSTANCE.driver.close()
             Runner.SELENIUM_INSTANCE = None
             # Create new selenium instance
             return Runner.get_selenium_instance(client_type)
