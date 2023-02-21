@@ -16,7 +16,6 @@ class Runner:
     """Execute run"""
 
     DISPLAY = None
-    SELENIUM_INSTANCE = None
 
     @staticmethod
     def get_display():
@@ -44,31 +43,20 @@ class Runner:
         # Get display
         Runner.get_display()
 
-        # If runner selenium is the wrong type, close
-        # down the old one
-        if Runner.SELENIUM_INSTANCE and not isinstance(Runner.SELENIUM_INSTANCE, browser_class):
-            Runner.SELENIUM_INSTANCE.quit()
-            Runner.SELENIUM_INSTANCE = None
+        selenium_instance = browser_class(**kwargs)
+        selenium_instance.maximize_window()
+        selenium_instance.implicitly_wait(1)
 
-        if Runner.SELENIUM_INSTANCE is None:
-            Runner.SELENIUM_INSTANCE = browser_class(**kwargs)
-            Runner.SELENIUM_INSTANCE.maximize_window()
-            Runner.SELENIUM_INSTANCE.implicitly_wait(1)
+        # Remove cookies before starting
+        selenium_instance.get('about:blank')
+        selenium_instance.delete_all_cookies()
 
-        try:
-            # Remove cookies before starting
-            Runner.SELENIUM_INSTANCE.get('about:blank')
-            Runner.SELENIUM_INSTANCE.delete_all_cookies()
+        return selenium_instance
 
-        # Handle error caused by previous tab crash
-        except selenium.common.exceptions.InvalidSessionIdException:
-            # Invalid selenium
-            Runner.SELENIUM_INSTANCE.quit()
-            Runner.SELENIUM_INSTANCE = None
-            # Create new selenium instance
-            return Runner.get_selenium_instance(client_type)
-
-        return Runner.SELENIUM_INSTANCE
+    def stop_selemium(self, selenium_instance):
+        """Quit selenium and remove all child processes"""
+        selenium_instance.close()
+        selenium_instance.quit()
 
     def perform_check(self, run):
         """Setup selenium and perform checks"""
@@ -92,23 +80,28 @@ class Runner:
 
             root_state = SeleniumStepState(selenium_instance=selenium_instance, element=selenium_instance)
 
-            status = run.root_step.execute(
-                execution_method='execute_selenium',
-                state=root_state
-            )
-
-            if status is StepStatus.FAILED and run.check.should_screenshot_on_error:
-                # Perform failure screenshot, if configured
-                error_screenshot = ScreenshotAction(
-                    run=run,
-                    config="failure",
-                    parent=run.root_step,
-                    enable_log=False
-                )
-                error_screenshot.execute(
+            try:
+                status = run.root_step.execute(
                     execution_method='execute_selenium',
                     state=root_state
                 )
+
+                if status is StepStatus.FAILED and run.check.should_screenshot_on_error:
+                    # Perform failure screenshot, if configured
+                    error_screenshot = ScreenshotAction(
+                        run=run,
+                        config="failure",
+                        parent=run.root_step,
+                        enable_log=False
+                    )
+                    error_screenshot.execute(
+                        execution_method='execute_selenium',
+                        state=root_state
+                    )
+
+            except:
+                self.stop_selemium(selenium_instance)
+                raise
         else:
             raise Exception(f"Unknown client: {client_type}")
 
