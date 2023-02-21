@@ -59,10 +59,7 @@ class Runner:
 
     def perform_check(self, run):
         """Setup selenium and perform checks"""
-        supported_clients = run.root_step.get_supported_clients([
-            ClientType.REQUESTS,
-            ClientType.BROWSER_FIREFOX
-        ])
+        supported_clients = run.check.get_supported_clients()
 
         run.logger.info(f"Supported clients: {supported_clients}")
         if not supported_clients:
