@@ -76,12 +76,12 @@ class FindStep(BaseStep):
         elif class_name := self._config.get('class'):
             by_type = By.CLASS_NAME
             value = class_name
-            description = "by class: {value}"
+            description = f"by class: {value}"
 
         elif tag := self._config.get('tag'):
             by_type = By.TAG_NAME
             value = tag
-            description = "by tag: {value}"
+            description = f"by tag: {value}"
 
         return by_type, description, value
 
