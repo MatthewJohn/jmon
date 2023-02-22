@@ -108,10 +108,7 @@ class Check(jmon.database.Base):
 
     def get_supported_clients(self):
         """Get supported clients"""
-        supported_clients = [ClientType.REQUESTS,
-            ClientType.BROWSER_CHROME,
-            ClientType.BROWSER_FIREFOX
-        ]
+        supported_clients = ClientType.get_all()
         if self.client:
             supported_clients = [self.client]
 
