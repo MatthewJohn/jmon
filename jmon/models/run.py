@@ -6,6 +6,7 @@ import sqlalchemy.orm
 
 import jmon.database
 import jmon.config
+from jmon.step_status import StepStatus
 
 
 class Run(jmon.database.Base):
@@ -16,13 +17,16 @@ class Run(jmon.database.Base):
     def get_latest_by_check(cls, check):
         """Get latest check by run"""
         session = jmon.database.Database.get_session()
-        return session.query(cls).filter(cls.check==check).order_by(cls.timestamp.desc).limit(1).first()
+        return session.query(cls).filter(cls.check==check).order_by(cls.timestamp.desc()).limit(1).first()
 
     @classmethod
-    def get_by_check(cls, check):
+    def get_by_check(cls, check, limit=None):
         """Get all runs by check"""
         session = jmon.database.Database.get_session()
-        return [run for run in session.query(cls).filter(cls.check==check)]
+        runs = session.query(cls).filter(cls.check==check).order_by(cls.timestamp.desc())
+        if limit:
+            runs = runs.limit(limit)
+        return [run for run in runs]
 
     @classmethod
     def get(cls, check, timestamp_id):
@@ -66,9 +70,9 @@ class Run(jmon.database.Base):
         """Return string representation of run"""
         return f"{self.check.name}-{self.timestamp_id}"
 
-    def set_success(self, success):
+    def set_status(self, status):
         """Set success value"""
         session = jmon.database.Database.get_session()
-        self.success = success
+        self.success = bool(status is StepStatus.SUCCESS)
         session.add(self)
         session.commit()

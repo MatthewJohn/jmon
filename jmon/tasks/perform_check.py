@@ -34,14 +34,13 @@ def perform_check(self, check_name):
     success = False
     try:
         status = runner.perform_check(run=run)
-        success = bool(status is StepStatus.SUCCESS)
 
     except Exception as exc:
         run.logger.error(f"An internal/uncaught error occured: {exc}")
         raise
 
     finally:
-        run.end(success=success)
+        run.end(run_status=status)
         jmon.database.Database.clear_session()
 
     return success
