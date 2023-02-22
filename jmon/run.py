@@ -132,11 +132,11 @@ class Run:
         if run_status is StepStatus.SUCCESS:
             methods_to_call.append("on_every_success")
             if is_new_state:
-                methods_to_call("on_first_success")
+                methods_to_call.append("on_first_success")
         elif run_status is StepStatus.FAILED:
             methods_to_call.append("on_every_failure")
             if is_new_state:
-                methods_to_call("on_first_failure")
+                methods_to_call.append("on_first_failure")
 
         for notification_plugin in NotificationLoader.get_instance().get_plugins():
             logger.debug(f"Processing notification plugin: {notification_plugin}")
