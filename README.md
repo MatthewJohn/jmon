@@ -95,3 +95,15 @@ Goto http://localhost:5555 to view the celary tasks.
 
 Goto http://localhost:9001 to view minio for s3 bucket, logging in with AWS credentials from .env
 
+
+## Creating Notifications
+
+Create a new python module in `jmon/plugins/notifications` with a class inheriting from `NotificationPlugin`, implementing one or more of the following methods:
+ * `on_complete`
+ * `on_first_success`
+ * `on_every_success`
+ * `on_first_failure`
+ * `on_every_failure`
+
+For an example, see the `jmon/plugins/notifications/example_notification.py` plugin and the `jmon/plugins/notifications/slack_example.py` plugins
+
