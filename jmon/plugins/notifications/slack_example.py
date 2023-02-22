@@ -1,4 +1,5 @@
 
+import os
 import requests
 
 from jmon.plugins import NotificationPlugin
@@ -7,7 +8,7 @@ from jmon.logger import logger
 
 class SlackExample(NotificationPlugin):
 
-    _WEBHOOK_URL = ""
+    _WEBHOOK_URL = os.environ.get("SLACK_WEBHOOK_URL")
 
     def _post_message(self, text):
         """Send message to slack"""
