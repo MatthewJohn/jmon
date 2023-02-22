@@ -9,6 +9,8 @@ from jmon.client_type import ClientType
 import jmon.database
 import jmon.config
 import jmon.models.run
+from jmon.steps.root_step import RootStep
+import jmon.run
 
 
 class Check(jmon.database.Base):
@@ -103,3 +105,32 @@ class Check(jmon.database.Base):
 
         # Return default check interval
         return config.DEFAULT_CHECK_INTERVAL
+
+    def get_supported_clients(self):
+        """Get supported clients"""
+        supported_clients = ClientType.get_all()
+        if self.client:
+            supported_clients = [self.client]
+
+        root_step = RootStep(run=jmon.run.Run(check=self), config=self.steps, parent=None)
+
+        supported_clients = root_step.get_supported_clients(supported_clients)
+        return supported_clients
+
+    @property
+    def task_headers(self):
+        """Get queue for task"""
+        supported_clients = self.get_supported_clients()
+
+        if not supported_clients:
+            return None
+
+        headers = {}
+
+        if ClientType.REQUESTS in supported_clients:
+            headers["requests"] = "true"
+        if ClientType.BROWSER_CHROME in supported_clients:
+            headers["chrome"] = "true"
+        if ClientType.BROWSER_FIREFOX in supported_clients:
+            headers["firefox"] = "true"
+        return headers

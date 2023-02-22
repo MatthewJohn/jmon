@@ -52,6 +52,14 @@ name: Check_Wikipedia
 # Disable screenshots on error
 screenshot_on_error: false
 
+
+# Specify browser
+# Options are:
+#  * BROWSER_CHROME
+#  * BROWSER_FIREFOX
+#  * REQUESTS - for performing only json and response code checks
+client: BROWSER_CHROME
+
 # Check every 5 minutes
 interval: 300
 

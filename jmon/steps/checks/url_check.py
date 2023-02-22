@@ -17,7 +17,8 @@ class UrlCheck(BaseCheck):
         """Return list of supported clients"""
         return [
             ClientType.REQUESTS,
-            ClientType.BROWSER_FIREFOX
+            ClientType.BROWSER_FIREFOX,
+            ClientType.BROWSER_CHROME
         ]
 
     @property

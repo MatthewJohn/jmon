@@ -20,7 +20,8 @@ class FindStep(BaseStep):
     def supported_clients(self):
         """Return list of supported clients"""
         return [
-            ClientType.BROWSER_FIREFOX
+            ClientType.BROWSER_FIREFOX,
+            ClientType.BROWSER_CHROME
         ]
 
     @property
@@ -75,12 +76,12 @@ class FindStep(BaseStep):
         elif class_name := self._config.get('class'):
             by_type = By.CLASS_NAME
             value = class_name
-            description = "by class: {value}"
+            description = f"by class: {value}"
 
         elif tag := self._config.get('tag'):
             by_type = By.TAG_NAME
             value = tag
-            description = "by tag: {value}"
+            description = f"by tag: {value}"
 
         return by_type, description, value
 
@@ -89,9 +90,9 @@ class FindStep(BaseStep):
         """Find element"""
         try:
             return element.find_element(by_type, value)
-        except selenium.common.exceptions.NoSuchElementException as exc:
+        except (selenium.common.exceptions.NoSuchElementException, selenium.common.exceptions.ElementNotInteractableException) as exc:
             self._logger.error("Could not find element")
-            self._logger.debug(str(exc))
+            self._logger.debug(str(exc).split("\n")[0])
             return None
 
     def execute_selenium(self, state: SeleniumStepState):
