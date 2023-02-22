@@ -18,6 +18,7 @@ class GotoStep(BaseStep):
         """Return list of supported clients"""
         return [
             ClientType.BROWSER_FIREFOX,
+            ClientType.BROWSER_CHROME,
             ClientType.REQUESTS
         ]
 
@@ -46,4 +47,4 @@ class GotoStep(BaseStep):
             state.selenium_instance.get(self._config)
         except selenium.common.exceptions.WebDriverException as exc:
             self._set_status(StepStatus.FAILED)
-            self._logger.error(str(exc))
+            self._logger.error(str(exc).split("\n")[0])

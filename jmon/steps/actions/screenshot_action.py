@@ -19,7 +19,8 @@ class ScreenshotAction(BaseAction):
     def supported_clients(self):
         """Return list of supported clients"""
         return [
-            ClientType.BROWSER_FIREFOX
+            ClientType.BROWSER_FIREFOX,
+            ClientType.BROWSER_CHROME
         ]
 
     @property
