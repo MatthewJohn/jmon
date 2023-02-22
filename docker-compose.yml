@@ -116,3 +116,6 @@ services:
      - broker
      - minio
      - redis
+    # Mount noficiation plugins
+    volumes:
+     - ./jmon/plugins/notifications:/app/jmon/plugins/notifications:ro

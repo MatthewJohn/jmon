@@ -7,8 +7,10 @@ import os
 
 from jmon.logger import logger
 from jmon.artifact_storage import ArtifactStorage
+from jmon.plugins import NotificationLoader
 from jmon.result_database import ResultMetricAverageSuccessRate, ResultDatabase, ResultMetricLatestStatus
 import jmon.models.run
+from jmon.step_status import StepStatus
 from jmon.steps.root_step import RootStep
 
 
@@ -86,9 +88,9 @@ class Run:
         artifact_path = f"{self.get_artifact_key()}/{artifact}"
         return artifact_storage.get_file(artifact_path)
 
-    def end(self, success):
+    def end(self, run_status):
         """End logging and upload"""
-        self._db_run.set_success(success)
+        self._db_run.set_status(run_status)
 
         logger.removeHandler(self._log_handler)
 
@@ -106,6 +108,48 @@ class Run:
         average_success_metric.write(result_database=result_database, run=self)
         latest_status_metric = ResultMetricLatestStatus()
         latest_status_metric.write(result_database=result_database, run=self)
+
+        # Send notifications using plugins
+        self.send_notifications(run_status)
+
+    def send_notifications(self, run_status):
+        """Send notifications to plugins"""
+        methods_to_call = [
+            # Always call the "on_complete" method
+            "on_complete"
+        ]
+
+        last_2_runs = jmon.models.run.Run.get_by_check(check=self._check, limit=2)
+        is_new_state = False
+        # If this is the first run, count as a state change
+        if len(last_2_runs) == 1:
+            is_new_state = True
+        # Otherwise, set is_new_state if last two runs had differing results
+        elif last_2_runs[0].success != last_2_runs[1].success:
+            is_new_state = True
+
+        # Create list of methods to be called on the notification plugin
+        if run_status is StepStatus.SUCCESS:
+            methods_to_call.append("on_every_success")
+            if is_new_state:
+                methods_to_call("on_first_success")
+        elif run_status is StepStatus.FAILED:
+            methods_to_call.append("on_every_failure")
+            if is_new_state:
+                methods_to_call("on_first_failure")
+
+        for notification_plugin in NotificationLoader.get_instance().get_plugins():
+            logger.debug(f"Processing notification plugin: {notification_plugin}")
+            for method_to_call in methods_to_call:
+                try:
+                    logger.debug(f"Calling notification plugin method: {notification_plugin}.{method_to_call}")
+                    getattr(notification_plugin(), method_to_call)(
+                        check_name=self._check.name,
+                        run_status=run_status,
+                        run_log=self.read_log_stream()
+                    )
+                except Exception as exc:
+                    logger.debug(f"Failed to call notification method: {str(exc)}")
 
     def get_run_key(self):
         """Return datetime key for run"""
