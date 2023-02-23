@@ -3,6 +3,7 @@ from flask import request
 import yaml
 
 from jmon.database import Database
+from jmon.errors import CheckCreateError
 
 from . import FlaskApp
 from jmon.models import Check
@@ -21,7 +22,11 @@ def get_checks():
 @FlaskApp.app.route('/api/v1/checks', methods=["POST"])
 def register_check():
     """Register check"""
-    task = Check.from_yaml(request.data)
+    try:
+        task = Check.from_yaml(request.data)
+    except CheckCreateError as exc:
+        return {"status": "error", "msg": str(exc)}, 400
+
     return {"status": "ok", "msg": "Check created/updated"}, 200
 
 @FlaskApp.app.route('/api/v1/checks/<check_name>', methods=["GET"])
