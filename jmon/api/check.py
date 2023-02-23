@@ -38,7 +38,7 @@ def get_check(check_name):
 
     return {
         "name": check.name,
-        "client": check.client,
+        "client": check.client.value if check.client else None,
         "interval": check.interval,
         "steps": check.steps
     }, 200
