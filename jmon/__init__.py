@@ -1,15 +1,12 @@
 
 import os
-from time import sleep
 
 from celery import Celery
 from kombu import Queue, Exchange, binding
-import redis
 from redbeat.schedulers import RedBeatConfig
 
 from jmon.logger import logger
-from jmon.runner import Runner
-import jmon.models
+
 
 redis_url = f"{os.environ.get('REDIS_TYPE')}://{os.environ.get('REDIS_USERNAME')}:{os.environ.get('REDIS_PASSWORD')}@{os.environ.get('REDIS_HOST')}:{os.environ.get('REDIS_PORT')}/{os.environ.get('REDIS_INSTANCE')}"
 broker_url = f"{os.environ.get('BROKER_TYPE')}://{os.environ.get('BROKER_USERNAME')}:{os.environ.get('BROKER_PASSWORD')}@{os.environ.get('BROKER_HOST')}:{os.environ.get('BROKER_PORT')}/{os.environ.get('BROKER_INSTANCE')}"

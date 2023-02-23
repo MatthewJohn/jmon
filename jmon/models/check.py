@@ -2,10 +2,12 @@
 
 import sqlalchemy
 
+from redbeat import RedBeatSchedulerEntry
 import yaml
 import json
 from jmon.client_type import ClientType
 
+from jmon import app
 import jmon.database
 import jmon.config
 from jmon.errors import CheckCreateError
@@ -102,6 +104,15 @@ class Check(jmon.database.Base):
 
     def delete(self):
         """Delete check"""
+
+        # Delete from schedule, if it exists
+        try:
+            entry = RedBeatSchedulerEntry.from_key(key=f"redbeat:check_{self.name}", app=app)
+            entry.delete()
+        except KeyError:
+            pass
+
+        # Delete from database
         session = jmon.database.Database.get_session()
         session.delete(self)
         session.commit()
