@@ -8,6 +8,7 @@ from jmon.client_type import ClientType
 
 import jmon.database
 import jmon.config
+from jmon.errors import CheckCreateError
 import jmon.models.run
 from jmon.steps.root_step import RootStep
 import jmon.run
@@ -33,16 +34,16 @@ class Check(jmon.database.Base):
         try:
             content = yaml.safe_load(yml)
         except Exception as exc:
-            raise Exception('Invalid YAML')
+            raise CheckCreateError('Invalid YAML')
 
         if type(content) is not dict:
-            raise Exception("YAML must be a dictionary")
+            raise CheckCreateError("YAML must be a dictionary")
 
         if not (name := content.get("name")):
-            raise Exception("No name defined for check")
+            raise CheckCreateError("No name defined for check")
 
         if not (steps := content.get("steps")):
-            raise Exception("No steps defined for check")
+            raise CheckCreateError("No steps defined for check")
 
         # Check for existing steps with the same name
         session = jmon.database.Database.get_session()
@@ -54,7 +55,14 @@ class Check(jmon.database.Base):
 
         instance.steps = steps
         instance.screenshot_on_error = content.get("screenshot_on_error")
-        instance.client = ClientType(content.get("client")) if content.get("client") else None
+
+        if client_type := content.get("client"):
+            try:
+                instance.client = ClientType(client_type)
+            except ValueError:
+                raise CheckCreateError("Invalid client type")
+        else:
+            instance.client = None
         instance.interval = int(content.get("interval", 0))
 
         session.add(instance)
