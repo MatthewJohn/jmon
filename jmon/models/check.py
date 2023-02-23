@@ -92,6 +92,12 @@ class Check(jmon.database.Base):
         # Return default config for whether to screenshot on failure
         return jmon.config.Config.get().SCREENSHOT_ON_FAILURE_DEFAULT
 
+    def delete(self):
+        """Delete check"""
+        session = jmon.database.Database.get_session()
+        session.delete(self)
+        session.commit()
+
     def get_result_key(self):
         """Get redis key prefix for results."""
         return f"jmon_run_result_{self.name}_"
