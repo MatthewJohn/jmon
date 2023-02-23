@@ -24,6 +24,20 @@ def register_check():
     task = Check.from_yaml(request.data)
     return {"status": "ok", "msg": "Check created/updated"}, 200
 
+@FlaskApp.app.route('/api/v1/checks/<check_name>', methods=["GET"])
+def get_check(check_name):
+    """Get check details"""
+    check = Check.get_by_name(check_name)
+    if not check:
+        return {"status": "error", "msg": "Check does not exist"}, 404
+
+    return {
+        "name": check.name,
+        "client": check.client,
+        "interval": check.interval,
+        "steps": check.steps
+    }, 200
+
 @FlaskApp.app.route('/api/v1/checks/<check_name>', methods=["DELETE"])
 def delete_check(check_name):
     """Register check"""
