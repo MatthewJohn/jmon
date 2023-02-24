@@ -33,7 +33,7 @@ def perform_check(self, check_name):
 
     runner = Runner()
 
-    success = False
+    status = StepStatus.FAILED
     try:
         status = runner.perform_check(run=run)
 
@@ -45,4 +45,4 @@ def perform_check(self, check_name):
         run.end(run_status=status)
         jmon.database.Database.clear_session()
 
-    return success
+    return (status == StepStatus.SUCCESS)
