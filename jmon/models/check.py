@@ -5,8 +5,9 @@ import sqlalchemy
 from redbeat import RedBeatSchedulerEntry
 import yaml
 import json
-from jmon.client_type import ClientType
+import celery
 
+from jmon.client_type import ClientType
 from jmon import app
 import jmon.database
 import jmon.config
@@ -14,6 +15,7 @@ from jmon.errors import CheckCreateError
 import jmon.models.run
 from jmon.steps.root_step import RootStep
 import jmon.run
+from jmon.logger import logger
 
 
 class Check(jmon.database.Base):
@@ -70,6 +72,12 @@ class Check(jmon.database.Base):
         session.add(instance)
         session.commit()
 
+        # Enable check by default, or if directed to
+        if content.get("enabled", True):
+            instance.enable()
+        else:
+            instance.disable()
+
         return instance
 
 
@@ -81,6 +89,7 @@ class Check(jmon.database.Base):
     interval = sqlalchemy.Column(sqlalchemy.Integer)
     client = sqlalchemy.Column(sqlalchemy.Enum(ClientType), default=None)
     _steps = sqlalchemy.Column(jmon.database.Database.LargeString, name="steps")
+    enabled = sqlalchemy.Column(sqlalchemy.Boolean, default=True)
 
     @property
     def steps(self):
@@ -116,6 +125,86 @@ class Check(jmon.database.Base):
         session = jmon.database.Database.get_session()
         session.delete(self)
         session.commit()
+
+    def enable(self):
+        """Enable the check"""
+        # Update DB row
+        session = jmon.database.Database.get_session()
+        self.enabled = False
+        session.add(self)
+        session.commit()
+
+        self.upsert_schedule()
+
+    def disable(self):
+        """Disable the check"""
+        self.delete_schedule()
+
+        # Update DB row
+        session = jmon.database.Database.get_session()
+        self.enabled = False
+        session.add(self)
+        session.commit()
+
+    def upsert_schedule(self):
+        """Register or update schedule"""
+        headers = self.task_headers
+        if not headers:
+            logger.warn(f"Check does not have any compatible client types: {self.name}")
+            return
+
+        options = {
+            'headers': headers,
+            'exchange': 'check'
+        }
+
+        interval_seconds = self.get_interval()
+        interval = celery.schedules.schedule(run_every=interval_seconds)
+
+        key = f'check_{self.name}'
+
+        needs_to_save = False
+        reschedule = False
+        try:
+            entry = RedBeatSchedulerEntry.from_key(key=f"redbeat:{key}", app=app)
+            if (entry.schedule.run_every != interval.run_every or
+                    entry.options.get('headers') != options['headers'] or
+                    entry.options.get('exchange') != options['exchange']):
+                # Update interval and set directive to save
+                entry.interval = interval
+                entry.options.update(options)
+
+                needs_to_save = True
+
+                # Re-schedule to allow previously scheduled
+                # runs to be rescheduled
+                reschedule = True
+
+        except KeyError:
+            # If it does not exist, create new entry
+            entry = RedBeatSchedulerEntry(
+                key,
+                'jmon.tasks.perform_check.perform_check',
+                interval,
+                args=[self.name],
+                app=app,
+                options=options
+            )
+            needs_to_save = True
+
+        if needs_to_save:
+            entry.save()
+            if reschedule:
+                entry.reschedule()
+
+    def delete_schedule(self):
+        """De-register from schedule"""
+        # Delete from schedule, if it exists
+        try:
+            entry = RedBeatSchedulerEntry.from_key(key=f"redbeat:check_{self.name}", app=app)
+            entry.delete()
+        except KeyError:
+            pass
 
     def get_result_key(self):
         """Get redis key prefix for results."""
