@@ -19,6 +19,8 @@ def perform_check(self, check_name):
     if res.status != "PENDING":
         return res.result
 
+    logger.info(f"Starting check: {check_name}")
+
     # Get config for check
     session = jmon.database.Database.get_session()
     check = session.query(jmon.models.Check).filter(jmon.models.Check.name==check_name).first()
