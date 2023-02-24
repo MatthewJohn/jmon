@@ -12,7 +12,7 @@ from jmon import app
 import jmon.database
 import jmon.config
 from jmon.errors import CheckCreateError
-import jmon.models.run
+import jmon.models
 from jmon.steps.root_step import RootStep
 import jmon.run
 from jmon.logger import logger
@@ -27,10 +27,10 @@ class Check(jmon.database.Base):
         return session.query(cls).all()
 
     @classmethod
-    def get_by_name(cls, name):
+    def get_by_name_and_environment(cls, name, environment):
         """Get all checks"""
         session = jmon.database.Database.get_session()
-        return session.query(cls).filter(cls.name==name).first()
+        return session.query(cls).filter(cls.name==name, cls.environment==environment).first()
 
     @classmethod
     def from_yaml(cls, yml):
@@ -60,6 +60,21 @@ class Check(jmon.database.Base):
         instance.steps = steps
         instance.screenshot_on_error = content.get("screenshot_on_error")
 
+        instance.environment = None
+        # If an environment has been provided, ensure it exists
+        if environment_name := content.get("environment"):
+            environment = jmon.models.environment.Environment.get_by_name(environment)
+            if environment is None:
+                raise CheckCreateError(f"Environment does not exist: {environment_name}")
+            instance.environment = environment
+
+        # If an environment has not been provided, raise an
+        # exception if creation of a check without an environment is disallowed
+        elif not jmon.config.Config.get().ALLOW_CHECK_WITHOUT_ENVIRONMENT:
+            raise CheckCreateError("An environment must be specified for the check")
+
+        # If a client type has been provided, convert to enum,
+        # hanlding invalid values
         if client_type := content.get("client"):
             try:
                 instance.client = ClientType(client_type)
@@ -83,13 +98,23 @@ class Check(jmon.database.Base):
 
     __tablename__ = 'check'
 
-    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
-    name = sqlalchemy.Column(jmon.database.Database.GeneralString, primary_key=True)
+    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
+    name = sqlalchemy.Column(jmon.database.Database.GeneralString, nullable=False)
     screenshot_on_error = sqlalchemy.Column(sqlalchemy.Boolean)
     interval = sqlalchemy.Column(sqlalchemy.Integer)
     client = sqlalchemy.Column(sqlalchemy.Enum(ClientType), default=None)
     _steps = sqlalchemy.Column(jmon.database.Database.LargeString, name="steps")
     enabled = sqlalchemy.Column(sqlalchemy.Boolean, default=True)
+
+    environment_id = sqlalchemy.Column(
+        sqlalchemy.ForeignKey("environment.id", name="fk_check_environment_id_environment_id"),
+        nullable=True,
+
+    )
+    environment = sqlalchemy.orm.relationship("Environment", foreign_keys=[environment_id])
+
+    # Add unique contraint across name and environment ID
+    __table_args__ = (sqlalchemy.UniqueConstraint('name', 'environment_id', name='uc_name_environment_id'), )
 
     @property
     def steps(self):
