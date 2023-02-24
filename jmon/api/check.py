@@ -40,7 +40,8 @@ def get_check(check_name):
         "name": check.name,
         "client": check.client.value if check.client else None,
         "interval": check.interval,
-        "steps": check.steps
+        "steps": check.steps,
+        "enabled": check.enabled
     }, 200
 
 @FlaskApp.app.route('/api/v1/checks/<check_name>', methods=["DELETE"])
@@ -52,3 +53,29 @@ def delete_check(check_name):
 
     check.delete()
     return {"status": "ok", "msg": "Check deleted"}, 200
+
+@FlaskApp.app.route('/api/v1/checks/<check_name>/enable', methods=["POST"])
+def enable_check(check_name):
+    """Get check details"""
+    check = Check.get_by_name(check_name)
+    if not check:
+        return {"status": "error", "msg": "Check does not exist"}, 404
+
+    check.enable()
+
+    return {
+        "status": "ok", "msg": "Enabled check"
+    }, 200
+
+@FlaskApp.app.route('/api/v1/checks/<check_name>/disable', methods=["POST"])
+def disable_check(check_name):
+    """Get check details"""
+    check = Check.get_by_name(check_name)
+    if not check:
+        return {"status": "error", "msg": "Check does not exist"}, 404
+
+    check.disable()
+
+    return {
+        "status": "ok", "msg": "Disabled check"
+    }, 200
