@@ -41,7 +41,7 @@ def get_check(check_name):
         "client": check.client.value if check.client else None,
         "interval": check.interval,
         "steps": check.steps,
-        "enabled": check.enabled
+        "enable": check.enabled
     }, 200
 
 @FlaskApp.app.route('/api/v1/checks/<check_name>', methods=["DELETE"])

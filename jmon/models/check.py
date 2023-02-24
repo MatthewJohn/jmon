@@ -73,7 +73,7 @@ class Check(jmon.database.Base):
         session.commit()
 
         # Enable check by default, or if directed to
-        if content.get("enabled", True):
+        if content.get("enable", True):
             instance.enable()
         else:
             instance.disable()
