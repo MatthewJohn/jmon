@@ -10,7 +10,6 @@ from jmon.client_type import ClientType
 from jmon.step_state import RequestsStepState, SeleniumStepState
 from jmon.step_status import StepStatus
 from jmon.steps.actions.screenshot_action import ScreenshotAction
-from jmon.logger import logger
 
 
 class Runner:
