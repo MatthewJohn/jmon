@@ -181,7 +181,7 @@ class Check(jmon.database.Base):
     @property
     def schedule_key(self):
         """Return schedule key, as registered with redbeat"""
-        return f'check_{self.name}'
+        return f'check_{self.name}_{self.environment.name}'
 
     @property
     def redis_schedule_key(self):
@@ -226,7 +226,7 @@ class Check(jmon.database.Base):
                 self.schedule_key,
                 'jmon.tasks.perform_check.perform_check',
                 interval,
-                args=[self.name],
+                args=[self.name, self.environment.name],
                 app=app,
                 options=options
             )
