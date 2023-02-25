@@ -112,7 +112,7 @@ class Check(jmon.database.Base):
     interval = sqlalchemy.Column(sqlalchemy.Integer)
     client = sqlalchemy.Column(sqlalchemy.Enum(ClientType), default=None)
     _steps = sqlalchemy.Column(jmon.database.Database.LargeString, name="steps")
-    enabled = sqlalchemy.Column(sqlalchemy.Boolean, default=True)
+    _enabled = sqlalchemy.Column(sqlalchemy.Boolean, default=True, name="enabled")
 
     environment_id = sqlalchemy.Column(
         sqlalchemy.ForeignKey("environment.id", name="fk_check_environment_id_environment_id"),
@@ -143,6 +143,16 @@ class Check(jmon.database.Base):
 
         # Return default config for whether to screenshot on failure
         return jmon.config.Config.get().SCREENSHOT_ON_FAILURE_DEFAULT
+
+    @property
+    def enabled(self):
+        """Return whether check is enabled, default empty column to True"""
+        return self._enabled is not False
+
+    @enabled.setter
+    def enabled(self, value):
+        """Set enabled flag"""
+        self._enabled = value
 
     def delete(self):
         """Delete check"""
