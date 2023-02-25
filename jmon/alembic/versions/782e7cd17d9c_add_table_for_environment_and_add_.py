@@ -27,6 +27,19 @@ def upgrade() -> None:
     op.add_column('check', sa.Column('environment_id', sa.Integer(), nullable=True))
     op.create_unique_constraint('uc_name_environment_id', 'check', ['name', 'environment_id'])
     op.create_foreign_key('fk_check_environment_id_environment_id', 'check', 'environment', ['environment_id'], ['id'])
+
+    bind = op.get_bind()
+    # Create default environment
+    bind.execute("""
+        INSERT INTO public.environment(id, name) VALUES(1, 'default')
+    """)
+    # Update all checks to default environment
+    bind.execute("""
+        UPDATE public.check SET environment_id=1
+    """)
+
+    # Remove nullable flag from check.environment_id
+    op.alter_column('check', sa.Column('environment_id', sa.Integer(), nullable=False))
     # ### end Alembic commands ###
 
 
