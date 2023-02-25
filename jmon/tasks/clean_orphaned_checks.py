@@ -28,6 +28,7 @@ def clean_orphaned_checks():
 
     checks = jmon.models.Check.get_all()
     for check in checks:
+        logger.debug(f"Processing check: {check.name}")
         if check.enabled:
             if check.redis_schedule_key in existing_checks:
                 existing_checks.remove(check.redis_schedule_key)
