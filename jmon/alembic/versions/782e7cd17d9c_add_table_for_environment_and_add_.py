@@ -29,14 +29,21 @@ def upgrade() -> None:
     op.create_foreign_key('fk_check_environment_id_environment_id', 'check', 'environment', ['environment_id'], ['id'])
 
     bind = op.get_bind()
+
     # Create default environment
-    bind.execute("""
-        INSERT INTO public.environment(id, name) VALUES(1, 'default')
+    res = bind.execute("""
+        INSERT INTO public.environment(name) VALUES('default')
     """)
+
+    # Get ID for inserted environment
+    res = bind.execute("""SELECT id FROM public.environment WHERE name='default'""")
+    environment_id = [r for r in res][0][0]
+
     # Update all checks to default environment
-    bind.execute("""
-        UPDATE public.check SET environment_id=1
-    """)
+    bind.execute(
+        sa.sql.text("""UPDATE public.check SET environment_id=:environment_id"""),
+        environment_id=environment_id
+    )
 
     # Remove nullable flag from check.environment_id
     op.alter_column('check', sa.Column('environment_id', sa.Integer(), nullable=False))
