@@ -6,6 +6,7 @@ from redbeat import RedBeatSchedulerEntry
 import yaml
 import json
 import celery
+import celery.schedules
 
 from jmon.client_type import ClientType
 from jmon import app
