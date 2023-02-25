@@ -1,4 +1,5 @@
 
+from distutils.core import run_setup
 from celery.result import AsyncResult
 
 from jmon import app
@@ -21,26 +22,26 @@ def perform_check(self, check_name, environment_name):
 
     logger.info(f"Starting check: Check Name: {check_name}, Environment: {environment_name}")
 
-    # Get environment
-    environment = jmon.models.environment.Environment.get_by_name(name=environment_name)
-    if not environment:
-        raise Exception("Could not find environment")
-
-    # Get check
-    check = jmon.models.check.Check.get_by_name_and_environment(
-        name=check_name, environment=environment
-    )
-    if not check:
-        raise Exception("Could not find check")
-
-    # Create run and mark as started
-    run = Run(check)
-    run.start()
-
-    runner = Runner()
-
-    status = StepStatus.FAILED
     try:
+        # Get environment
+        environment = jmon.models.environment.Environment.get_by_name(name=environment_name)
+        if not environment:
+            raise Exception("Could not find environment")
+
+        # Get check
+        check = jmon.models.check.Check.get_by_name_and_environment(
+            name=check_name, environment=environment
+        )
+        if not check:
+            raise Exception("Could not find check")
+
+        # Create run and mark as started
+        run = Run(check)
+        run.start()
+
+        runner = Runner()
+
+        status = StepStatus.FAILED
         status = runner.perform_check(run=run)
 
     except Exception as exc:

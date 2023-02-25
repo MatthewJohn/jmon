@@ -14,10 +14,12 @@ from jmon.models import Check
 def get_checks():
     """Register check"""
     checks = Check.get_all()
-    return sorted([
-        check.name
-        for check in checks
-    ]), 200
+    return sorted(
+        [
+            (check.name, check.environment.name)
+            for check in checks
+        ], key=lambda x: x[0]
+    ), 200
 
 
 @FlaskApp.app.route('/api/v1/checks', methods=["POST"])
