@@ -14,4 +14,10 @@ app.conf.beat_schedule = {
         'schedule': 30.0,
         'args': []
     },
+    # Clean orphaned checks every 12 hours
+    'clean_orphaned_checks': {
+        'task': 'jmon.tasks.clean_orphaned_checks.clean_orphaned_checks',
+        'schedule': 43200.0,
+        'args': []
+    }
 }

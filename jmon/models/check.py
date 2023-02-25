@@ -178,6 +178,16 @@ class Check(jmon.database.Base):
         session.add(self)
         session.commit()
 
+    @property
+    def schedule_key(self):
+        """Return schedule key, as registered with redbeat"""
+        return f'check_{self.name}'
+
+    @property
+    def redis_schedule_key(self):
+        """Return internal schedule key used in redis"""
+        return f'redbeat:{self.schedule_key}'
+
     def upsert_schedule(self):
         """Register or update schedule"""
         headers = self.task_headers
@@ -193,12 +203,10 @@ class Check(jmon.database.Base):
         interval_seconds = self.get_interval()
         interval = celery.schedules.schedule(run_every=interval_seconds)
 
-        key = f'check_{self.name}'
-
         needs_to_save = False
         reschedule = False
         try:
-            entry = RedBeatSchedulerEntry.from_key(key=f"redbeat:{key}", app=app)
+            entry = RedBeatSchedulerEntry.from_key(key=self.redis_schedule_key, app=app)
             if (entry.schedule.run_every != interval.run_every or
                     entry.options.get('headers') != options['headers'] or
                     entry.options.get('exchange') != options['exchange']):
@@ -215,7 +223,7 @@ class Check(jmon.database.Base):
         except KeyError:
             # If it does not exist, create new entry
             entry = RedBeatSchedulerEntry(
-                key,
+                self.schedule_key,
                 'jmon.tasks.perform_check.perform_check',
                 interval,
                 args=[self.name],
