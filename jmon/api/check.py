@@ -16,9 +16,12 @@ def get_checks():
     checks = Check.get_all()
     return sorted(
         [
-            (check.name, check.environment.name)
+            {
+                "name": check.name,
+                "environment": check.environment.name
+            }
             for check in checks
-        ], key=lambda x: x[0]
+        ], key=lambda x: x["name"]
     ), 200
 
 

@@ -3,25 +3,26 @@
         <link rel="stylesheet" href="/static/css/pico.min.css">
         <script src="/static/js/jquery.min.js"></script>
         <script>
-            $.get('/api/v1/checks').then((checks) => {
-                checks.forEach((check) => {
-                    $.get(`/api/v1/checks/${check}/results`).then((check_result) => {
+            $.get('/api/v1/checks').then(async (checks) => {
+                for (check of checks) {
+                    await $.get(`/api/v1/checks/${check.name}/environments/${check.environment}/results`).then((check_result) => {
                         $('#check-table-body').append(`
                             <tr>
-                                <td><a href="/check?name=${check}">${check}</a></td>
+                                <td>${check.environment}</td>
+                                <td><a href="/check?name=${check.name}&environment=${check.environment}">${check.name}</a></td>
                                 <td>${check_result.latest_status === true ? "Success" : check_result.latest_status === false ? "Failure" : "Not run"}</td>
                                 <td>${(check_result.average_success * 100).toPrecision(2)}%</td>
                             </tr>
                         `);
                     });
-                })
+                }
             })
         </script>
     </head>
     <body>
         <table>
             <thead>
-                <tr><th>Check</th><th>Latest run</th><th>Success rate</th></tr>
+                <tr><th>Environment</th><th>Check</th><th>Latest run</th><th>Success rate</th></tr>
             </thead>
             <tbody id="check-table-body"></tbody>
         </table>
