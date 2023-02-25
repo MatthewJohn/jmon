@@ -15,3 +15,9 @@ class EnvironmentCreateError(JmonError):
     """Failed to create environment"""
 
     pass
+
+
+class EnvironmentHasRegisteredChecksError(JmonError):
+    """An environment has checks registered against it"""
+
+    pass

@@ -5,8 +5,8 @@ import yaml
 
 import jmon.database
 import jmon.config
-from jmon.errors import EnvironmentCreateError
-import jmon.models.run
+from jmon.errors import EnvironmentCreateError, EnvironmentHasRegisteredChecksError
+import jmon.models
 import jmon.run
 from jmon.logger import logger
 
@@ -26,32 +26,30 @@ class Environment(jmon.database.Base):
         return session.query(cls).filter(cls.name==name).first()
 
     @classmethod
-    def from_yaml(cls, yml):
-        """Return instance of class from check yaml"""
-        try:
-            content = yaml.safe_load(yml)
-        except Exception as exc:
-            raise EnvironmentCreateError('Invalid YAML')
-
-        if type(content) is not dict:
-            raise EnvironmentCreateError("YAML must be a dictionary")
-
-        if not (name := content.get("name")):
-            raise EnvironmentCreateError("No name defined for environment")
-
-        # Check for existing steps with the same name
+    def create(cls, name):
+        """Create environment"""
         session = jmon.database.Database.get_session()
+        pre_existing_environment = cls.get_by_name(name=name)
+        if pre_existing_environment:
+            return EnvironmentCreateError("An environment already exists with this name")
 
-        instance = session.query(cls).filter(cls.name==name).first()
-        # Create new instance of environment, if it doesn't exist
-        if not instance:
-            instance = cls(name=name)
-
+        instance = cls(name=name)
         session.add(instance)
         session.commit()
-
         return instance
 
+    def delete(self):
+        """Delete environment"""
+        checks = [
+            check
+            for check in jmon.models.check.Check.get_by_environment(self)
+        ]
+        if checks:
+            raise EnvironmentHasRegisteredChecksError(
+                "Checks are registered against the environment")
+        session = jmon.database.Database.get_session()
+        session.delete(self)
+        session.commit()
 
     __tablename__ = 'environment'
 

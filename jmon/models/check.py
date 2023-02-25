@@ -28,6 +28,12 @@ class Check(jmon.database.Base):
         return session.query(cls).all()
 
     @classmethod
+    def get_by_environment(cls, environment):
+        """Get all checks by environment"""
+        session = jmon.database.Database.get_session()
+        return session.query(cls).filter(cls.environment==environment)
+
+    @classmethod
     def get_by_name_and_environment(cls, name, environment):
         """Get all checks"""
         session = jmon.database.Database.get_session()

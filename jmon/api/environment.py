@@ -1,0 +1,35 @@
+
+from flask import request
+
+from jmon.errors import EnvironmentCreateError, JmonError
+
+from . import FlaskApp
+import jmon.models
+
+
+@FlaskApp.app.route('/api/v1/environments', methods=["POST"])
+def create_environment():
+    """Create environment"""
+    environment_name = request.json.get("name")
+    if not environment_name:
+        return {"status": "error", "msg": "Name not provided"}, 400
+
+    try:
+        jmon.models.environment.Environment.create(name=environment_name)
+    except EnvironmentCreateError as exc:
+        return {"status": "error", "msg": str(exc)}, 400
+
+    return {"status": "ok", "msg": "Environment created"}, 200
+
+@FlaskApp.app.route('/api/v1/environments/<environment_name>', methods=["DELETE"])
+def delete_environment(environment_name):
+    """Delete environment"""
+    environment = jmon.models.environment.Environment.get_by_name(name=environment_name)
+    if not environment:
+        return {"status": "error", "msg": "Environment does not exist"}
+
+    try:
+        environment.delete()
+    except JmonError as exc:
+        return {"status": "error", "msg": str(exc)}
+    return {"status": "ok", "msg": "Environment deleted"}, 200
