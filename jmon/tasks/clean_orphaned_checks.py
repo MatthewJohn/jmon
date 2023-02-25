@@ -24,7 +24,10 @@ def clean_orphaned_checks():
         port=config.REDIS_PORT, 
         password=config.REDIS_PASSWORD
     )
-    existing_checks = connection.keys("redbeat:check_*")
+    existing_checks = [
+        key.decode('utf-8')
+        for key in connection.keys("redbeat:check_*")
+    ]
 
     checks = jmon.models.Check.get_all()
     for check in checks:
