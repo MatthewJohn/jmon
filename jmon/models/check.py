@@ -233,9 +233,13 @@ class Check(jmon.database.Base):
             needs_to_save = True
 
         if needs_to_save:
+            logger.info(f"Saving schedule: {self.schedule_key}")
             entry.save()
             if reschedule:
+                logger.info(f"Rescheduling: {self.schedule_key}")
                 entry.reschedule()
+
+        return needs_to_save
 
     def delete_schedule(self):
         """De-register from schedule"""

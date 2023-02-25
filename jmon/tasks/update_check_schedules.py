@@ -14,7 +14,8 @@ def update_check_schedules():
     checks = jmon.models.Check.get_all()
     for check in checks:
         if check.enabled:
-            check.upsert_schedule()
+            if check.upsert_schedule():
+                logger.info(f"Added/updated schedule for {check.name}")
 
     # Clear down session
     jmon.database.Database.clear_session()
