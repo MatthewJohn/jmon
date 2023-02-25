@@ -68,10 +68,17 @@ class Check(jmon.database.Base):
                 raise CheckCreateError(f"Environment does not exist: {environment_name}")
             instance.environment = environment
 
-        # If an environment has not been provided, raise an
-        # exception if creation of a check without an environment is disallowed
-        elif not jmon.config.Config.get().ALLOW_CHECK_WITHOUT_ENVIRONMENT:
-            raise CheckCreateError("An environment must be specified for the check")
+        # If an environment has not been provided, determine
+        # if a single environment has been defined, and use that
+        else:
+            environments = jmon.models.environment.Environment.get_all()
+            if len(environments) == 1:
+                instance.environment = environments[0]
+            else:
+                raise CheckCreateError(
+                    "Environment must be defined - "
+                    "this can only be ommited if a single environment exists"
+                )
 
         # If a client type has been provided, convert to enum,
         # hanlding invalid values

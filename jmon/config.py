@@ -50,8 +50,6 @@ class Config:
 
     SCREENSHOT_ON_FAILURE_DEFAULT = os.environ.get('SCREENSHOT_ON_FAILURE_DEFAULT', 'True').lower() == 'true'
 
-    ALLOW_CHECK_WITHOUT_ENVIRONMENT = os.environ.get("ALLOW_CHECK_WITHOUT_ENVIRONMENT", "True").lower() == "true"
-
     @classmethod
     def get(cls):
         """Get instance of config"""
