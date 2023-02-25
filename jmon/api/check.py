@@ -30,11 +30,13 @@ def register_check():
     return {"status": "ok", "msg": "Check created/updated"}, 200
 
 @FlaskApp.app.route('/api/v1/checks/<check_name>', methods=["GET"])
-def get_check(check_name):
+@FlaskApp.app.route('/api/v1/checks/<check_name>/<environment_name>', methods=["GET"])
+def get_check(check_name, environment_name=None):
     """Get check details"""
-    check = Check.get_by_name(check_name)
-    if not check:
-        return {"status": "error", "msg": "Check does not exist"}, 404
+    check, _, error = get_check_and_environment_by_name(
+        check_name=check_name, environment_name=environment_name)
+    if error:
+        return error, 404
 
     return {
         "name": check.name,
@@ -45,11 +47,13 @@ def get_check(check_name):
     }, 200
 
 @FlaskApp.app.route('/api/v1/checks/<check_name>', methods=["DELETE"])
-def delete_check(check_name):
+@FlaskApp.app.route('/api/v1/checks/<check_name>/environments/<environment_name>', methods=["DELETE"])
+def delete_check(check_name, environment_name=None):
     """Register check"""
-    check = Check.get_by_name(check_name)
-    if check is None:
-        return {"status": "error", "msg": "Check does not exist"}, 404
+    check, _, error = get_check_and_environment_by_name(
+        check_name=check_name, environment_name=environment_name)
+    if error:
+        return error, 404
 
     check.delete()
     return {"status": "ok", "msg": "Check deleted"}, 200
