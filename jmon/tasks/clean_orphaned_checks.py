@@ -5,6 +5,8 @@ from redbeat import RedBeatSchedulerEntry
 from jmon import app
 import jmon.config
 from jmon.logger import logger
+import jmon.database
+import jmon.models
 
 
 def clean_orphaned_checks():
