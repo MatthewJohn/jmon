@@ -163,7 +163,7 @@ class Check(jmon.database.Base):
         """Enable the check"""
         # Update DB row
         session = jmon.database.Database.get_session()
-        self.enabled = False
+        self.enabled = True
         session.add(self)
         session.commit()
 
