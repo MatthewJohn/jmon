@@ -70,7 +70,7 @@ class Check(jmon.database.Base):
         instance.environment = None
         # If an environment has been provided, ensure it exists
         if environment_name := content.get("environment"):
-            environment = jmon.models.environment.Environment.get_by_name(environment)
+            environment = jmon.models.environment.Environment.get_by_name(environment_name)
             if environment is None:
                 raise CheckCreateError(f"Environment does not exist: {environment_name}")
             instance.environment = environment
