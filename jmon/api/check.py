@@ -6,6 +6,7 @@ from jmon.database import Database
 from jmon.errors import CheckCreateError
 
 from . import FlaskApp
+from .utils import get_check_and_environment_by_name
 from jmon.models import Check
 
 
@@ -29,8 +30,7 @@ def register_check():
 
     return {"status": "ok", "msg": "Check created/updated"}, 200
 
-@FlaskApp.app.route('/api/v1/checks/<check_name>', methods=["GET"])
-@FlaskApp.app.route('/api/v1/checks/<check_name>/<environment_name>', methods=["GET"])
+@FlaskApp.app.route('/api/v1/checks/<check_name>/environments/<environment_name>', methods=["GET"])
 def get_check(check_name, environment_name=None):
     """Get check details"""
     check, _, error = get_check_and_environment_by_name(
@@ -46,9 +46,8 @@ def get_check(check_name, environment_name=None):
         "enable": check.enabled
     }, 200
 
-@FlaskApp.app.route('/api/v1/checks/<check_name>', methods=["DELETE"])
 @FlaskApp.app.route('/api/v1/checks/<check_name>/environments/<environment_name>', methods=["DELETE"])
-def delete_check(check_name, environment_name=None):
+def delete_check(check_name, environment_name):
     """Register check"""
     check, _, error = get_check_and_environment_by_name(
         check_name=check_name, environment_name=environment_name)
@@ -58,12 +57,13 @@ def delete_check(check_name, environment_name=None):
     check.delete()
     return {"status": "ok", "msg": "Check deleted"}, 200
 
-@FlaskApp.app.route('/api/v1/checks/<check_name>/enable', methods=["POST"])
-def enable_check(check_name):
+@FlaskApp.app.route('/api/v1/checks/<check_name>/environments/<environment_name>/enable', methods=["POST"])
+def enable_check(check_name, environment_name):
     """Get check details"""
-    check = Check.get_by_name(check_name)
-    if not check:
-        return {"status": "error", "msg": "Check does not exist"}, 404
+    check, _, error = get_check_and_environment_by_name(
+        check_name=check_name, environment_name=environment_name)
+    if error:
+        return error, 404
 
     check.enable()
 
@@ -71,12 +71,13 @@ def enable_check(check_name):
         "status": "ok", "msg": "Enabled check"
     }, 200
 
-@FlaskApp.app.route('/api/v1/checks/<check_name>/disable', methods=["POST"])
-def disable_check(check_name):
+@FlaskApp.app.route('/api/v1/checks/<check_name>/environments/<environment_name>/disable', methods=["POST"])
+def disable_check(check_name, environment_name):
     """Get check details"""
-    check = Check.get_by_name(check_name)
-    if not check:
-        return {"status": "error", "msg": "Check does not exist"}, 404
+    check, _, error = get_check_and_environment_by_name(
+        check_name=check_name, environment_name=environment_name)
+    if error:
+        return error, 404
 
     check.disable()
 
