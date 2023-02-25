@@ -205,24 +205,22 @@ class Check(jmon.database.Base):
         interval = celery.schedules.schedule(run_every=interval_seconds)
 
         needs_to_save = False
-        reschedule = False
         try:
             entry = RedBeatSchedulerEntry.from_key(key=self.redis_schedule_key, app=app)
+            logger.debug("Found existing schedule for task")
             if (entry.schedule.run_every != interval.run_every or
                     entry.options.get('headers') != options['headers'] or
                     entry.options.get('exchange') != options['exchange']):
                 # Update interval and set directive to save
+                logger.debug("Interval/options need updating")
                 entry.interval = interval
                 entry.options.update(options)
 
                 needs_to_save = True
 
-                # Re-schedule to allow previously scheduled
-                # runs to be rescheduled
-                reschedule = True
-
         except KeyError:
             # If it does not exist, create new entry
+            logger.debug("Schedule does not exist.. creating new entry")
             entry = RedBeatSchedulerEntry(
                 self.schedule_key,
                 'jmon.tasks.perform_check.perform_check',
@@ -234,11 +232,9 @@ class Check(jmon.database.Base):
             needs_to_save = True
 
         if needs_to_save:
-            logger.info(f"Saving schedule: {self.schedule_key}")
+            logger.info(f"Saving schedule/re-scheduling: {self.schedule_key}")
             entry.save()
-            if reschedule:
-                logger.info(f"Rescheduling: {self.schedule_key}")
-                entry.reschedule()
+            entry.reschedule()
 
         return needs_to_save
 
