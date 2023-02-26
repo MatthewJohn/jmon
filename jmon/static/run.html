@@ -22,13 +22,14 @@
             // Get check from params
             var urlParams = new URLSearchParams(window.location.search);
             let checkName = urlParams.get('check');
+            let environmentName = urlParams.get('environment');
             let timestamp = urlParams.get('timestamp');
 
             $('#run-title').text(`${checkName}: ${timestamp}`);
 
-            let artifactBaseUrl = `/api/v1/checks/${checkName}/runs/${timestamp}/artifacts/`;
+            let artifactBaseUrl = `/api/v1/checks/${checkName}/environments/${environmentName}/runs/${timestamp}/artifacts/`;
 
-            $.get(`/api/v1/checks/${checkName}/runs/${timestamp}`).then((run) => {
+            $.get(`/api/v1/checks/${checkName}/environments/${environmentName}/runs/${timestamp}`).then((run) => {
                 $('#run-status').text(`Status: ${run.status == true ? "Success" : "Failure"}`)
                 
                 // Obtain run log, if it exists

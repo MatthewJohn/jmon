@@ -2,17 +2,17 @@
 from flask import request
 
 from . import FlaskApp
-from jmon.models import Check, Run
+from .utils import get_check_and_environment_by_name
+from jmon.models import Run
 
 
-@FlaskApp.app.route('/api/v1/checks/<check_name>/runs', methods=["GET"])
-def get_check_runs(check_name):
+@FlaskApp.app.route('/api/v1/checks/<check_name>/environments/<environment_name>/runs', methods=["GET"])
+def get_check_runs(check_name, environment_name):
     """Register check"""
-    check = Check.get_by_name(check_name)
-    if not check:
-        return {
-            "error": "Check does not exist"
-        }, 400
+    check, _, error = get_check_and_environment_by_name(
+        check_name=check_name, environment_name=environment_name)
+    if error:
+        return error, 404
 
     return {
         run.timestamp_id: run.success
