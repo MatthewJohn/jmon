@@ -41,6 +41,10 @@ class RootStep(BaseStep):
         """Friendly description of step"""
         return "Root step"
 
+    def _validate_step(self):
+        """Check step is valid"""
+        pass
+
     def execute_requests(self, state: RequestsStepState):
         """Root module does nothing"""
         self._logger.debug(f"Starting root with config: {self._config}")

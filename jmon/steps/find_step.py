@@ -2,6 +2,7 @@
 import selenium.common.exceptions
 from selenium.webdriver.common.by import By
 from jmon.client_type import ClientType
+from jmon.errors import StepValidationError
 from jmon.step_state import SeleniumStepState
 from jmon.step_status import StepStatus
 
@@ -43,6 +44,18 @@ class FindStep(BaseStep):
         """Friendly description of step"""
         _, description, _ = self._get_find_type()
         return f"Find element {description}"
+
+    def _validate_step(self):
+        """Check step is valid"""
+        found_types = []
+        for supported_check_type in ['id', 'class', 'text', 'placeholder', 'tag']:
+            if self._config.get(supported_check_type):
+                found_types.append(supported_check_type)
+        
+        # Allow 1 type or
+        # text/placeholder with tag
+        if not (len(found_types) == 1 or ('tag' in found_types and ('placeholder' in found_types or 'text' in found_types))):
+            raise StepValidationError("Find only supports one of: id, class, tag. Or placeholder or text with optional tag")
 
     def _get_find_type(self):
         """Get find type based on config"""

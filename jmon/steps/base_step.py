@@ -159,6 +159,16 @@ class BaseStep:
             self._logger.info(f"Step completed")
         self._status = status
 
+    def _validate_step(self):
+        """Check step is valid"""
+        raise NotImplementedError
+
+    def validate_steps(self):
+        """Validate step has a valid configuration"""
+        self._validate_step()
+        for child_step in self.get_child_steps():
+            child_step.validate_steps()
+
     def execute(self, execution_method, state: StepState):
         """Execute the current step and then execute each of the child steps"""
         self._status = StepStatus.RUNNING

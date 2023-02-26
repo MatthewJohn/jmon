@@ -3,6 +3,7 @@ import os
 import re
 from selenium.webdriver.common.keys import Keys
 from jmon.client_type import ClientType
+from jmon.errors import StepValidationError
 from jmon.step_state import SeleniumStepState
 
 from jmon.steps.actions.base_action import BaseAction
@@ -46,6 +47,11 @@ class ScreenshotAction(BaseAction):
             raise Exception('Screenshot name is invalid')
 
         return f"{screenshot_name}.png"
+
+    def _validate_step(self):
+        """Check step is valid"""
+        if type(self._config) is not str or not self._config:
+            raise StepValidationError("Screenshot name must be provided")
 
     def execute_selenium(self, state: SeleniumStepState):
         """Press keyboard key"""

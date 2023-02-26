@@ -2,6 +2,7 @@
 import selenium.common.exceptions
 
 from jmon.client_type import ClientType
+from jmon.errors import StepValidationError
 from jmon.step_state import SeleniumStepState
 from jmon.step_status import StepStatus
 from jmon.steps.actions.base_action import BaseAction
@@ -30,6 +31,11 @@ class TypeAction(BaseAction):
     def description(self):
         """Friendly description of step"""
         return f"Typing text into browser element: {self._config}"
+
+    def _validate_step(self):
+        """Check step is valid"""
+        if type(self._config) is not str or not self._config:
+            raise StepValidationError("Text to type must be provided")
 
     @retry(count=5, interval=0.5)
     def _type(self, element, text):

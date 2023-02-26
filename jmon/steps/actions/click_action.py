@@ -18,6 +18,11 @@ class ClickAction(BaseAction):
             ClientType.BROWSER_CHROME
         ]
 
+    def _validate_step(self):
+        """Check step is valid"""
+        # Nothing to check
+        pass
+
     @property
     def id(self):
         """ID string for step"""

@@ -2,6 +2,7 @@
 import requests
 import selenium.common.exceptions
 from jmon.client_type import ClientType
+from jmon.errors import StepValidationError
 from jmon.step_state import RequestsStepState, SeleniumStepState
 
 from jmon.step_status import StepStatus
@@ -21,6 +22,11 @@ class GotoStep(BaseStep):
             ClientType.BROWSER_CHROME,
             ClientType.REQUESTS
         ]
+
+    def _validate_step(self):
+        """Check step is valid"""
+        if type(self._config) is not str or not self._config:
+            raise StepValidationError("Goto value must be a URL")
 
     @property
     def supported_child_steps(self):
