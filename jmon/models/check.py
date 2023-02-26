@@ -59,33 +59,32 @@ class Check(jmon.database.Base):
         # Check for existing steps with the same name
         session = jmon.database.Database.get_session()
 
-        instance = session.query(cls).filter(cls.name==name).first()
-        # Create new instance of check, if it doesn't exist
-        if not instance:
-            instance = cls(name=name)
-
-        instance.steps = steps
-        instance.screenshot_on_error = content.get("screenshot_on_error")
-
-        instance.environment = None
+        environment = None
         # If an environment has been provided, ensure it exists
         if environment_name := content.get("environment"):
             environment = jmon.models.environment.Environment.get_by_name(environment_name)
             if environment is None:
                 raise CheckCreateError(f"Environment does not exist: {environment_name}")
-            instance.environment = environment
 
         # If an environment has not been provided, determine
         # if a single environment has been defined, and use that
         else:
             environments = jmon.models.environment.Environment.get_all()
             if len(environments) == 1:
-                instance.environment = environments[0]
+                environment = environments[0]
             else:
                 raise CheckCreateError(
                     "Environment must be defined - "
                     "this can only be ommited if a single environment exists"
                 )
+
+        instance = cls.get_by_name_and_environment(name=name, environment=environment)
+        # Create new instance of check, if it doesn't exist
+        if not instance:
+            instance = cls(name=name, environment=environment)
+
+        instance.steps = steps
+        instance.screenshot_on_error = content.get("screenshot_on_error")
 
         # If a client type has been provided, convert to enum,
         # hanlding invalid values
