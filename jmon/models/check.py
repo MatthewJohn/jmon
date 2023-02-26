@@ -6,13 +6,14 @@ from redbeat import RedBeatSchedulerEntry
 import yaml
 import json
 import celery
+import celery.schedules
 
 from jmon.client_type import ClientType
 from jmon import app
 import jmon.database
 import jmon.config
 from jmon.errors import CheckCreateError
-import jmon.models.run
+import jmon.models
 from jmon.steps.root_step import RootStep
 import jmon.run
 from jmon.logger import logger
@@ -27,10 +28,16 @@ class Check(jmon.database.Base):
         return session.query(cls).all()
 
     @classmethod
-    def get_by_name(cls, name):
+    def get_by_environment(cls, environment):
+        """Get all checks by environment"""
+        session = jmon.database.Database.get_session()
+        return session.query(cls).filter(cls.environment==environment)
+
+    @classmethod
+    def get_by_name_and_environment(cls, name, environment):
         """Get all checks"""
         session = jmon.database.Database.get_session()
-        return session.query(cls).filter(cls.name==name).first()
+        return session.query(cls).filter(cls.name==name, cls.environment==environment).first()
 
     @classmethod
     def from_yaml(cls, yml):
@@ -52,14 +59,35 @@ class Check(jmon.database.Base):
         # Check for existing steps with the same name
         session = jmon.database.Database.get_session()
 
-        instance = session.query(cls).filter(cls.name==name).first()
+        environment = None
+        # If an environment has been provided, ensure it exists
+        if environment_name := content.get("environment"):
+            environment = jmon.models.environment.Environment.get_by_name(environment_name)
+            if environment is None:
+                raise CheckCreateError(f"Environment does not exist: {environment_name}")
+
+        # If an environment has not been provided, determine
+        # if a single environment has been defined, and use that
+        else:
+            environments = jmon.models.environment.Environment.get_all()
+            if len(environments) == 1:
+                environment = environments[0]
+            else:
+                raise CheckCreateError(
+                    "Environment must be defined - "
+                    "this can only be ommited if a single environment exists"
+                )
+
+        instance = cls.get_by_name_and_environment(name=name, environment=environment)
         # Create new instance of check, if it doesn't exist
         if not instance:
-            instance = cls(name=name)
+            instance = cls(name=name, environment=environment)
 
         instance.steps = steps
         instance.screenshot_on_error = content.get("screenshot_on_error")
 
+        # If a client type has been provided, convert to enum,
+        # hanlding invalid values
         if client_type := content.get("client"):
             try:
                 instance.client = ClientType(client_type)
@@ -83,13 +111,23 @@ class Check(jmon.database.Base):
 
     __tablename__ = 'check'
 
-    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
-    name = sqlalchemy.Column(jmon.database.Database.GeneralString, primary_key=True)
+    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
+    name = sqlalchemy.Column(jmon.database.Database.GeneralString, nullable=False)
     screenshot_on_error = sqlalchemy.Column(sqlalchemy.Boolean)
     interval = sqlalchemy.Column(sqlalchemy.Integer)
     client = sqlalchemy.Column(sqlalchemy.Enum(ClientType), default=None)
     _steps = sqlalchemy.Column(jmon.database.Database.LargeString, name="steps")
-    enabled = sqlalchemy.Column(sqlalchemy.Boolean, default=True)
+    _enabled = sqlalchemy.Column(sqlalchemy.Boolean, default=True, name="enabled")
+
+    environment_id = sqlalchemy.Column(
+        sqlalchemy.ForeignKey("environment.id", name="fk_check_environment_id_environment_id"),
+        nullable=True,
+
+    )
+    environment = sqlalchemy.orm.relationship("Environment", foreign_keys=[environment_id])
+
+    # Add unique contraint across name and environment ID
+    __table_args__ = (sqlalchemy.UniqueConstraint('name', 'environment_id', name='uc_name_environment_id'), )
 
     @property
     def steps(self):
@@ -111,6 +149,16 @@ class Check(jmon.database.Base):
         # Return default config for whether to screenshot on failure
         return jmon.config.Config.get().SCREENSHOT_ON_FAILURE_DEFAULT
 
+    @property
+    def enabled(self):
+        """Return whether check is enabled, default empty column to True"""
+        return self._enabled is not False
+
+    @enabled.setter
+    def enabled(self, value):
+        """Set enabled flag"""
+        self._enabled = value
+
     def delete(self):
         """Delete check"""
 
@@ -130,7 +178,7 @@ class Check(jmon.database.Base):
         """Enable the check"""
         # Update DB row
         session = jmon.database.Database.get_session()
-        self.enabled = False
+        self.enabled = True
         session.add(self)
         session.commit()
 
@@ -145,6 +193,16 @@ class Check(jmon.database.Base):
         self.enabled = False
         session.add(self)
         session.commit()
+
+    @property
+    def schedule_key(self):
+        """Return schedule key, as registered with redbeat"""
+        return f'check_{self.name}_{self.environment.name}'
+
+    @property
+    def redis_schedule_key(self):
+        """Return internal schedule key used in redis"""
+        return f'redbeat:{self.schedule_key}'
 
     def upsert_schedule(self):
         """Register or update schedule"""
@@ -161,41 +219,39 @@ class Check(jmon.database.Base):
         interval_seconds = self.get_interval()
         interval = celery.schedules.schedule(run_every=interval_seconds)
 
-        key = f'check_{self.name}'
-
         needs_to_save = False
-        reschedule = False
         try:
-            entry = RedBeatSchedulerEntry.from_key(key=f"redbeat:{key}", app=app)
+            entry = RedBeatSchedulerEntry.from_key(key=self.redis_schedule_key, app=app)
+            logger.debug("Found existing schedule for task")
             if (entry.schedule.run_every != interval.run_every or
                     entry.options.get('headers') != options['headers'] or
                     entry.options.get('exchange') != options['exchange']):
                 # Update interval and set directive to save
+                logger.debug("Interval/options need updating")
                 entry.interval = interval
                 entry.options.update(options)
 
                 needs_to_save = True
 
-                # Re-schedule to allow previously scheduled
-                # runs to be rescheduled
-                reschedule = True
-
         except KeyError:
             # If it does not exist, create new entry
+            logger.debug("Schedule does not exist.. creating new entry")
             entry = RedBeatSchedulerEntry(
-                key,
+                self.schedule_key,
                 'jmon.tasks.perform_check.perform_check',
                 interval,
-                args=[self.name],
+                args=[self.name, self.environment.name],
                 app=app,
                 options=options
             )
             needs_to_save = True
 
         if needs_to_save:
+            logger.info(f"Saving schedule/re-scheduling: {self.schedule_key}")
             entry.save()
-            if reschedule:
-                entry.reschedule()
+            entry.reschedule()
+
+        return needs_to_save
 
     def delete_schedule(self):
         """De-register from schedule"""

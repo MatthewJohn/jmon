@@ -1,4 +1,5 @@
 
+from distutils.core import run_setup
 from celery.result import AsyncResult
 
 from jmon import app
@@ -10,7 +11,7 @@ import jmon.database
 from jmon.step_status import StepStatus
 
 
-def perform_check(self, check_name):
+def perform_check(self, check_name, environment_name):
 
     # Check if task has already executed due to being
     # pushed to multiple queues and, if so,
@@ -19,22 +20,28 @@ def perform_check(self, check_name):
     if res.status != "PENDING":
         return res.result
 
-    logger.info(f"Starting check: {check_name}")
+    logger.info(f"Starting check: Check Name: {check_name}, Environment: {environment_name}")
 
-    # Get config for check
-    session = jmon.database.Database.get_session()
-    check = session.query(jmon.models.Check).filter(jmon.models.Check.name==check_name).first()
-
-    if not check:
-        raise Exception("Could not find check")
-
-    run = Run(check)
-    run.start()
-
-    runner = Runner()
-
-    success = False
     try:
+        # Get environment
+        environment = jmon.models.environment.Environment.get_by_name(name=environment_name)
+        if not environment:
+            raise Exception("Could not find environment")
+
+        # Get check
+        check = jmon.models.check.Check.get_by_name_and_environment(
+            name=check_name, environment=environment
+        )
+        if not check:
+            raise Exception("Could not find check")
+
+        # Create run and mark as started
+        run = Run(check)
+        run.start()
+
+        runner = Runner()
+
+        status = StepStatus.FAILED
         status = runner.perform_check(run=run)
 
     except Exception as exc:
@@ -45,4 +52,4 @@ def perform_check(self, check_name):
         run.end(run_status=status)
         jmon.database.Database.clear_session()
 
-    return success
+    return (status == StepStatus.SUCCESS)

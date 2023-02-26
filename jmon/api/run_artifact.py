@@ -2,18 +2,18 @@
 from flask import Response
 
 from . import FlaskApp
+from .utils import get_check_and_environment_by_name
 import jmon.models
 import jmon.run
 
 
-@FlaskApp.app.route('/api/v1/checks/<check_name>/runs/<timestamp>/artifacts/<artifact>', methods=["GET"])
-def get_run_artifact(check_name, timestamp, artifact):
+@FlaskApp.app.route('/api/v1/checks/<check_name>/environments/<environment_name>/runs/<timestamp>/artifacts/<artifact>', methods=["GET"])
+def get_run_artifact(check_name, environment_name, timestamp, artifact):
     """Register check"""
-    check = jmon.models.Check.get_by_name(check_name)
-    if not check:
-        return {
-            "error": "Check does not exist"
-        }, 400
+    check, _, error = get_check_and_environment_by_name(
+        check_name=check_name, environment_name=environment_name)
+    if error:
+        return error, 404
 
 
     db_run = jmon.models.Run.get(

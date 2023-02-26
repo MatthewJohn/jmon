@@ -8,17 +8,16 @@ from jmon.result_database import (
 )
 
 from . import FlaskApp
-from jmon.models import Check
+from .utils import get_check_and_environment_by_name
 
 
-@FlaskApp.app.route('/api/v1/checks/<check_name>/results', methods=["GET"])
-def get_check_results(check_name):
+@FlaskApp.app.route('/api/v1/checks/<check_name>/environments/<environment_name>/results', methods=["GET"])
+def get_check_results(check_name, environment_name):
     """Register check"""
-    check = Check.get_by_name(check_name)
-    if not check:
-        return {
-            "error": "Check does not exist"
-        }, 400
+    check, _, error = get_check_and_environment_by_name(
+        check_name=check_name, environment_name=environment_name)
+    if error:
+        return error, 404
 
     result_database = ResultDatabase()
     return {
