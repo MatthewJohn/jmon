@@ -26,10 +26,21 @@ def delete_environment(environment_name):
     """Delete environment"""
     environment = jmon.models.environment.Environment.get_by_name(name=environment_name)
     if not environment:
-        return {"status": "error", "msg": "Environment does not exist"}
+        return {"status": "error", "msg": "Environment does not exist"}, 404
 
     try:
         environment.delete()
     except JmonError as exc:
         return {"status": "error", "msg": str(exc)}
     return {"status": "ok", "msg": "Environment deleted"}, 200
+
+@FlaskApp.app.route('/api/v1/environments/<environment_name>', methods=["GET"])
+def get_environment(environment_name):
+    """Create environment"""
+    environment = jmon.models.environment.Environment.get_by_name(name=environment_name)
+    if not environment:
+        return {"status": "error", "msg": "Environment does not exist"}, 404
+
+    return {
+        "name": environment.name
+    }, 200
