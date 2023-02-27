@@ -34,7 +34,7 @@ class PressAction(BaseAction):
     def _validate_step(self):
         """Check step is valid"""
         if self._config not in ["enter"]:
-            raise StepValidationError("Press supports the following keys: enter")
+            raise StepValidationError(f"Press supports the following keys: enter. Got value: {self._config}")
 
 
     def execute_selenium(self, state: SeleniumStepState):

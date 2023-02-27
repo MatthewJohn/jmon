@@ -35,7 +35,7 @@ class TypeAction(BaseAction):
     def _validate_step(self):
         """Check step is valid"""
         if type(self._config) is not str or not self._config:
-            raise StepValidationError("Text to type must be provided")
+            raise StepValidationError(f"Text to type must be a string. Got: {self._config}")
 
     @retry(count=5, interval=0.5)
     def _type(self, element, text):

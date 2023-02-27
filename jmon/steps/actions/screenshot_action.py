@@ -51,7 +51,7 @@ class ScreenshotAction(BaseAction):
     def _validate_step(self):
         """Check step is valid"""
         if type(self._config) is not str or not self._config:
-            raise StepValidationError("Screenshot name must be provided")
+            raise StepValidationError(f"Screenshot name must be provided. Got: {self._config}")
 
     def execute_selenium(self, state: SeleniumStepState):
         """Press keyboard key"""

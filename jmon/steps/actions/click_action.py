@@ -1,6 +1,7 @@
 
 
 from jmon.client_type import ClientType
+from jmon.errors import StepValidationError
 from jmon.step_state import SeleniumStepState
 from jmon.steps.actions.base_action import BaseAction
 from jmon.logger import logger
@@ -20,8 +21,8 @@ class ClickAction(BaseAction):
 
     def _validate_step(self):
         """Check step is valid"""
-        # Nothing to check
-        pass
+        if self._config is not None:
+            raise StepValidationError(f"Click step should not have any attributes. Got: {self._config}")
 
     @property
     def id(self):
