@@ -1,12 +1,12 @@
 
-import PageLayout from './Views/PageLayout/PageLayout.tsx';
+import CheckList from './Views/CheckListView/CheckList.tsx';
 
 import './App.css';
 
 function App() {
   return (
     <div className="App">
-      <PageLayout />
+      <CheckList />
     </div>
   );
 }

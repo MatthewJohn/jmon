@@ -106,7 +106,7 @@ class PageLayout extends React.Component {
             }}
           >
             <Toolbar />
-
+            {this.props.children}
 
           </Box>
         </Box>
