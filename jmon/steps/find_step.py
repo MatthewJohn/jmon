@@ -16,6 +16,13 @@ from jmon.utils import retry
 class FindStep(BaseStep):
 
     CONFIG_KEY = "find"
+    _SUPPORTED_ATTRIBUTES = [
+        "id",
+        "class",
+        "text",
+        "placeholder",
+        "tag"
+    ]
 
     @property
     def supported_clients(self):
@@ -45,12 +52,46 @@ class FindStep(BaseStep):
         _, description, _ = self._get_find_type()
         return f"Find element {description}"
 
+    def _get_find_config(self):
+        """Return dictionary of supported attributes"""
+        config = {}
+        for config_itx in self._config:
+            for key_ in config_itx:
+                if key_ in self._SUPPORTED_ATTRIBUTES:
+                    config[key_] = config_itx[key_]
+        return config
+
     def _validate_step(self):
         """Check step is valid"""
+        invalid_type_error = """
+Find must be a list of dictionaries. E.g.:
+  - find:
+     - id: my_div_id
+
+Actual config: {config}
+""".strip()
+
+        if type(self._config) is not list:
+            raise StepValidationError(invalid_type_error.format(config=self._config))
+
         found_types = []
-        for supported_check_type in ['id', 'class', 'text', 'placeholder', 'tag']:
-            if self._config.get(supported_check_type):
-                found_types.append(supported_check_type)
+        for item in self._config:
+            if type(item) is not dict:
+                raise StepValidationError(invalid_type_error.format(config=item))
+
+            # Get a list of all valid attributes for find
+            dict_contains_valid_key = False
+            for key_ in item:
+                if key_ in self._SUPPORTED_ATTRIBUTES:
+                    dict_contains_valid_key = True
+                    found_types.append(key_)
+
+            # If the dictionary contains a supported attribute, ensure there
+            # are no attributes that are not recognised.
+            if dict_contains_valid_key:
+                for key_ in item:
+                    if key_ not in self._SUPPORTED_ATTRIBUTES:
+                        raise StepValidationError(f"Find config contains invalid attribute: {key_}: {item}")
         
         # Allow 1 type or
         # text/placeholder with tag
@@ -59,15 +100,17 @@ class FindStep(BaseStep):
 
     def _get_find_type(self):
         """Get find type based on config"""
+        config = self._get_find_config()
+
         by_type = None
         description = None
         value = None
 
-        if id := self._config.get('id'):
+        if id := config.get('id'):
             by_type = By.ID
             value = id
             description = f"by ID: {value}"
-        elif (text := self._config.get('text')) or (placeholder := self._config.get('placeholder')):
+        elif (text := config.get('text')) or (placeholder := config.get('placeholder')):
             if text:
                 xpath_key = 'text'
                 xpath_value = text
@@ -75,7 +118,7 @@ class FindStep(BaseStep):
             elif placeholder:
                 xpath_key = 'placeholder'
                 xpath_value = placeholder
-            tag = self._config.get('tag')
+            tag = config.get('tag')
             description = f"by {xpath_key}: {xpath_value}"
             if not tag:
                 tag = '*'
@@ -86,12 +129,12 @@ class FindStep(BaseStep):
             by_type = By.XPATH
             value = f".//{tag}[contains({xpath_key}(), '{xpath_value}')]"
 
-        elif class_name := self._config.get('class'):
+        elif class_name := config.get('class'):
             by_type = By.CLASS_NAME
             value = class_name
             description = f"by class: {value}"
 
-        elif tag := self._config.get('tag'):
+        elif tag := config.get('tag'):
             by_type = By.TAG_NAME
             value = tag
             description = f"by tag: {value}"
