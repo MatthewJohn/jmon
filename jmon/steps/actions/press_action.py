@@ -1,6 +1,7 @@
 
 from selenium.webdriver.common.keys import Keys
 from jmon.client_type import ClientType
+from jmon.errors import StepValidationError
 from jmon.step_state import SeleniumStepState
 from jmon.step_status import StepStatus
 
@@ -29,6 +30,12 @@ class PressAction(BaseAction):
     def description(self):
         """Friendly description of step"""
         return f"Pressing key: {self._config}"
+
+    def _validate_step(self):
+        """Check step is valid"""
+        if self._config not in ["enter"]:
+            raise StepValidationError(f"Press supports the following keys: enter. Got value: {self._config}")
+
 
     def execute_selenium(self, state: SeleniumStepState):
         """Press keyboard key"""

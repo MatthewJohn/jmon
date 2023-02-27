@@ -2,6 +2,7 @@
 import selenium.common.exceptions
 from selenium.webdriver.common.by import By
 from jmon.client_type import ClientType
+from jmon.errors import StepValidationError
 from jmon.step_state import SeleniumStepState
 from jmon.step_status import StepStatus
 
@@ -15,6 +16,13 @@ from jmon.utils import retry
 class FindStep(BaseStep):
 
     CONFIG_KEY = "find"
+    _SUPPORTED_ATTRIBUTES = [
+        "id",
+        "class",
+        "text",
+        "placeholder",
+        "tag"
+    ]
 
     @property
     def supported_clients(self):
@@ -44,25 +52,76 @@ class FindStep(BaseStep):
         _, description, _ = self._get_find_type()
         return f"Find element {description}"
 
+    def _get_find_config(self):
+        """Return dictionary of supported attributes"""
+        config = {}
+        for config_itx in self._config:
+            for key_ in config_itx:
+                if key_ in self._SUPPORTED_ATTRIBUTES:
+                    config[key_] = config_itx[key_]
+        return config
+
+    def _validate_step(self):
+        """Check step is valid"""
+        invalid_type_error = """
+Find must be a list of dictionaries. E.g.:
+  - find:
+     - id: my_div_id
+
+Actual config: {config}
+""".strip()
+
+        if type(self._config) is not list:
+            raise StepValidationError(invalid_type_error.format(config=self._config))
+
+        found_types = []
+        for item in self._config:
+            if type(item) is not dict:
+                raise StepValidationError(invalid_type_error.format(config=item))
+
+            # Get a list of all valid attributes for find
+            dict_contains_valid_key = False
+            for key_ in item:
+                if key_ in self._SUPPORTED_ATTRIBUTES:
+                    dict_contains_valid_key = True
+                    found_types.append(key_)
+
+            # If the dictionary contains a supported attribute, ensure there
+            # are no attributes that are not recognised.
+            if dict_contains_valid_key:
+                for key_ in item:
+                    if key_ not in self._SUPPORTED_ATTRIBUTES:
+                        raise StepValidationError(f"Find config contains invalid attribute: {key_}: {item}")
+        
+        # Allow 1 type or
+        # text/placeholder with tag
+        if not (len(found_types) == 1 or ('tag' in found_types and ('placeholder' in found_types or 'text' in found_types))):
+            raise StepValidationError("Find only supports one of: id, class, tag. Or placeholder or text with optional tag")
+
     def _get_find_type(self):
         """Get find type based on config"""
+        config = self._get_find_config()
+
         by_type = None
         description = None
         value = None
 
-        if id := self._config.get('id'):
+        if id := config.get('id'):
             by_type = By.ID
             value = id
             description = f"by ID: {value}"
-        elif (text := self._config.get('text')) or (placeholder := self._config.get('placeholder')):
+        elif (text := config.get('text')) or (placeholder := config.get('placeholder')):
             if text:
                 xpath_key = 'text'
                 xpath_value = text
+                xpath_template = f".//{{tag}}[contains(text(), '{xpath_value}')]"
 
             elif placeholder:
                 xpath_key = 'placeholder'
                 xpath_value = placeholder
-            tag = self._config.get('tag')
+                xpath_template = f".//{{tag}}[@placeholder='{xpath_value}']"
+
+            tag = config.get('tag')
             description = f"by {xpath_key}: {xpath_value}"
             if not tag:
                 tag = '*'
@@ -71,14 +130,14 @@ class FindStep(BaseStep):
 
             # Search by XPATH
             by_type = By.XPATH
-            value = f".//{tag}[contains({xpath_key}(), '{xpath_value}')]"
+            value = xpath_template.format(tag=tag)
 
-        elif class_name := self._config.get('class'):
+        elif class_name := config.get('class'):
             by_type = By.CLASS_NAME
             value = class_name
             description = f"by class: {value}"
 
-        elif tag := self._config.get('tag'):
+        elif tag := config.get('tag'):
             by_type = By.TAG_NAME
             value = tag
             description = f"by tag: {value}"

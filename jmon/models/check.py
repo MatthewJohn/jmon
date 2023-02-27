@@ -12,7 +12,7 @@ from jmon.client_type import ClientType
 from jmon import app
 import jmon.database
 import jmon.config
-from jmon.errors import CheckCreateError
+from jmon.errors import CheckCreateError, StepValidationError
 import jmon.models
 from jmon.steps.root_step import RootStep
 import jmon.run
@@ -96,6 +96,14 @@ class Check(jmon.database.Base):
         else:
             instance.client = None
         instance.interval = int(content.get("interval", 0))
+
+        # Create root step and perform check to ensure
+        # steps are valid
+        try:
+            root_step = RootStep(run=None, config=instance.steps, parent=None)
+            root_step.validate_steps()
+        except StepValidationError as exc:
+            raise CheckCreateError(str(exc))
 
         session.add(instance)
         session.commit()

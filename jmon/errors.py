@@ -21,3 +21,7 @@ class EnvironmentHasRegisteredChecksError(JmonError):
     """An environment has checks registered against it"""
 
     pass
+
+
+class StepValidationError(JmonError):
+    """A validation error occurred with step"""

@@ -1,18 +1,17 @@
 
-import selenium.common.exceptions
 
 from jmon.client_type import ClientType
 from jmon.errors import StepValidationError
 from jmon.step_state import SeleniumStepState
 from jmon.step_status import StepStatus
-from jmon.steps.actions.base_action import BaseAction
+from jmon.steps.checks.base_check import BaseCheck
 from jmon.logger import logger
 from jmon.utils import retry
 
 
-class TypeAction(BaseAction):
+class TextCheck(BaseCheck):
 
-    CONFIG_KEY = "type"
+    CONFIG_KEY = "text"
 
     @property
     def supported_clients(self):
@@ -25,28 +24,28 @@ class TypeAction(BaseAction):
     @property
     def id(self):
         """ID string for step"""
-        return f"Type"
+        return f"CheckText"
 
     @property
     def description(self):
         """Friendly description of step"""
-        return f"Typing text into browser element: {self._config}"
+        return f"Check element text matches: {self._config}"
 
     def _validate_step(self):
         """Check step is valid"""
         if type(self._config) is not str or not self._config:
-            raise StepValidationError(f"Text to type must be a string. Got: {self._config}")
+            raise StepValidationError("Expected text must be a valid string")
 
     @retry(count=5, interval=0.5)
-    def _type(self, element, text):
-        try:
-            element.send_keys(text)
-            return True
-        except selenium.common.exceptions.ElementNotInteractableException:
+    def _check_text(self, element, expected_title):
+        """Check text"""
+        actual_text = element.text
+        if actual_text != expected_title:
+            self._logger.error(f'Element text does not match excepted text. Expected "{self._config}" and got: "{actual_text}"')
             return None
+        return True
 
     def execute_selenium(self, state: SeleniumStepState):
-        """Type text"""
-        if not self._type(state.element, self._config):
+        """Check element text"""
+        if not self._check_text(state.element, self._config):
             self._set_status(StepStatus.FAILED)
-            self._logger.error("Unable to type into element")

@@ -1,6 +1,7 @@
 
 import requests
 from jmon.client_type import ClientType
+from jmon.errors import StepValidationError
 from jmon.step_state import RequestsStepState, SeleniumStepState
 from jmon.step_status import StepStatus
 from jmon.steps.checks.base_check import BaseCheck
@@ -30,6 +31,11 @@ class UrlCheck(BaseCheck):
     def description(self):
         """Friendly description of step"""
         return f"Check current URL of browser matches: {self._config}"
+
+    def _validate_step(self):
+        """Check step is valid"""
+        if type(self._config) is not str or not self._config:
+            raise StepValidationError("Expected URL must be a valid string")
 
     @retry(count=5, interval=0.5)
     def _check_url(self, selenium_instance, url):

@@ -1,5 +1,6 @@
 
 from jmon.client_type import ClientType
+from jmon.errors import StepValidationError
 from jmon.step_state import SeleniumStepState
 from jmon.steps.base_step import BaseStep
 import jmon.steps.actions
@@ -22,6 +23,11 @@ class ActionStep(BaseStep):
             ClientType.BROWSER_FIREFOX,
             ClientType.BROWSER_CHROME
         ]
+
+    def _validate_step(self):
+        """Check step is valid"""
+        if len(self.get_child_steps()) == 0:
+            raise StepValidationError("At least one action must be provided")
 
     @property
     def id(self):
