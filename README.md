@@ -23,12 +23,15 @@ docker-compose up -d
 
 # Add check for W3Schools
 curl -XPOST localhost:5000/api/v1/checks -H 'Content-Type: application/yml' -d '
+
 name: Check_W3Schools
+
 steps:
   # Goto Homepage
   - goto: https://www.w3schools.com/default.asp
   - check:
       title: W3Schools Online Web Tutorials
+
   # Accept cookies
   - find:
     - id: accept-choices

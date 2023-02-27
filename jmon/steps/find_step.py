@@ -114,10 +114,13 @@ Actual config: {config}
             if text:
                 xpath_key = 'text'
                 xpath_value = text
+                xpath_template = f".//{{tag}}[contains(text(), '{xpath_value}')]"
 
             elif placeholder:
                 xpath_key = 'placeholder'
                 xpath_value = placeholder
+                xpath_template = f".//{{tag}}[@placeholder='{xpath_value}']"
+
             tag = config.get('tag')
             description = f"by {xpath_key}: {xpath_value}"
             if not tag:
@@ -127,7 +130,7 @@ Actual config: {config}
 
             # Search by XPATH
             by_type = By.XPATH
-            value = f".//{tag}[contains({xpath_key}(), '{xpath_value}')]"
+            value = xpath_template.format(tag=tag)
 
         elif class_name := config.get('class'):
             by_type = By.CLASS_NAME
