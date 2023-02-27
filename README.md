@@ -31,16 +31,16 @@ steps:
       title: W3Schools Online Web Tutorials
   # Accept cookies
   - find:
-      id: accept-choices
-      actions:
-       - click
+    - id: accept-choices
+    - actions:
+      - click
 
   # Use search to find python
   - find:
-      placeholder: "Search our tutorials, e.g. HTML"
-      actions:
-        - type: Python
-        - press: enter
+    - placeholder: "Search our tutorials, e.g. HTML"
+    - actions:
+      - type: Python
+      - press: enter
   - check:
       url: "https://www.w3schools.com/python/default.asp"
 '
@@ -68,22 +68,25 @@ steps:
   - goto: https://en.wikipedia.org/wiki/Main_Page
   - check:
       title: Wikipedia, the free encyclopedia
+  - actions:
+    - screenshot: Homepage
+
   # Perform search
   - find:
-      id: searchform
-      find:
-        tag: input
-        actions:
-         - type: Pabalonium
-         - press: enter
+    - id: searchform
+    - find:
+      - tag: input
+      - actions:
+        - type: Pabalonium
+        - press: enter
   - check:
       url: "https://en.wikipedia.org/w/index.php?fulltext=Search&search=Pabalonium&title=Special%3ASearch&ns0=1"
   - find:
-      class: mw-search-nonefound
-      check:
+    - class: mw-search-nonefound
+    - check:
         text: There were no results matching the query.
   - actions:
-    - screenshot: Homepage
+    - screenshot: SearchResults
 '
 ```
 
