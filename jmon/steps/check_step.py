@@ -39,7 +39,7 @@ class CheckStep(BaseStep):
     def _validate_step(self):
         """Check step is valid"""
         if len(self.get_child_steps()) == 0:
-            raise StepValidationError("At least one action must be provided")
+            raise StepValidationError("At least one attribute must be provided for a check step")
 
     def get_child_steps(self):
         """
