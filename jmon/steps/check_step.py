@@ -1,5 +1,6 @@
 
 from jmon.client_type import ClientType
+from jmon.errors import StepValidationError
 from jmon.step_state import RequestsStepState, SeleniumStepState
 from jmon.steps.base_step import BaseStep
 import jmon.steps.checks
@@ -34,6 +35,11 @@ class CheckStep(BaseStep):
     def description(self):
         """Friendly description of step"""
         return "Running check steps"
+
+    def _validate_step(self):
+        """Check step is valid"""
+        if len(self.get_child_steps()) == 0:
+            raise StepValidationError("At least one attribute must be provided for a check step")
 
     def get_child_steps(self):
         """

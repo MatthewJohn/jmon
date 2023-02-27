@@ -1,6 +1,7 @@
 
 
 from jmon.client_type import ClientType
+from jmon.errors import StepValidationError
 from jmon.step_state import RequestsStepState
 from jmon.step_status import StepStatus
 from jmon.steps.checks.base_check import BaseCheck
@@ -28,6 +29,11 @@ class ResponseCheck(BaseCheck):
     def description(self):
         """Friendly description of step"""
         return f"Check response code matches: {self._config}"
+
+    def _validate_step(self):
+        """Check step is valid"""
+        if type(self._config) is not int:
+            raise StepValidationError("Response code must be a number, e.g. 200")
 
     def execute_requests(self, state: RequestsStepState):
         """Check response code"""

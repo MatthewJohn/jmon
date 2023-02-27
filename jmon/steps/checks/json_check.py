@@ -29,6 +29,11 @@ class JsonCheck(BaseCheck):
         """Friendly description of step"""
         return f"Check JSON response matches: {self._config}"
 
+    def _validate_step(self):
+        """Check step is valid"""
+        # Nothing to check, value can be of any type
+        pass
+
     def execute_requests(self, state: RequestsStepState):
         """Check response code"""
         if self._check_valid_requests_response(state.response):
