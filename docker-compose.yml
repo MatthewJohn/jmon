@@ -65,7 +65,9 @@ services:
      - database
 
   server:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.server
 
     command: python3 -u ./server.py
     env_file:
