@@ -11,12 +11,12 @@ import { withRouter } from '../../withRouter';
 const columns: GridColDef[] = [
   {
     field: 'timestamp',
-    headerName: 'timestamp',
+    headerName: 'Timestamp',
     width: 200
   },
   {
     field: 'result',
-    headerName: 'result',
+    headerName: 'Result',
     width: 400,
     valueGetter: (data) => {
       return data.row.result === true ? 'Success' : data.row.result === false ? 'Failed' : 'Running'}
@@ -42,7 +42,6 @@ class CheckView extends React.Component {
       this.setState({
         runs: Object.keys(runRes.data).map((key) => {return {timestamp: key, result: runRes.data[key]}})
       });
-      console.log(Object.keys(runRes.data).map((key) => {return {timestamp: key, result: runRes.data[key]}}));
     });
   }
 
@@ -51,10 +50,9 @@ class CheckView extends React.Component {
   }
 
   render() {
-    console.log("rendering");
     return (
       <Container  maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-        <Typography>
+        <Typography component="h2" variant="h5">
           {this.props.match.checkName} - {this.props.match.environmentName}
         </Typography>
         <Grid container spacing={3}>
@@ -70,7 +68,7 @@ class CheckView extends React.Component {
               }
             }}
           >
-            <div style={{ height: 400, width: '100%' }}>
+            <div style={{ height: 800, width: '100%' }}>
               <DataGrid
                 rows={this.state.runs}
                 columns={columns}
