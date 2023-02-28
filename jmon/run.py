@@ -157,7 +157,7 @@ class Run:
 
     def get_artifact_key(self):
         """Return key for run"""
-        return f"{self._check.name}/{self.get_run_key()}"
+        return f"{self._check.name}/{self._check.environment.name}/{self.get_run_key()}"
 
     def read_log_stream(self):
         """Return data from logstream"""

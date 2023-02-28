@@ -26,7 +26,7 @@ class ResultMetricAverageSuccessRate(ResultMetric):
     def _get_key(self, check, success):
         """Get key from check"""
         success_key_part = "success" if success else "failure"
-        return f"{check.name}_{success_key_part}"
+        return f"{check.name}_{check.environment.name}_{success_key_part}"
 
     def write(self, result_database, run):
         """Increment count for success/failure for run"""
@@ -53,7 +53,7 @@ class ResultMetricLatestStatus(ResultMetric):
 
     def _get_key(self, check):
         """Get key from check"""
-        return check.name
+        return f"{check.name}_{check.environment.name}"
 
     def write(self, result_database, run):
         """Write result to redis"""
