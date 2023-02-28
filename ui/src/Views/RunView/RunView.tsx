@@ -47,10 +47,30 @@ class RunView extends React.Component {
         "/environments/" + this.props.match.environmentName +
         "/runs/" + this.props.match.runTimestamp + "/artifacts/" + artifactName);
       return (
-        <a key={artifactName} href={imageUrl}>
-          <span>{artifactName}</span>
-          <img className='artifact-image' src={imageUrl} />
-        </a>
+        <Grid
+          item
+          key={artifactName}
+          xs={12} md={8} lg={4} xl={4}
+          sx={{
+            '& .artifact-image': {
+              borderColor: 'black',
+              borderStyle: 'solid',
+              borderWidth: '1px',
+
+              maxHeight: '100%',
+              maxWidth: '100%'
+            },
+            '& a': {
+              color: 'inherit',
+              textDecoration: 'inherit'
+            }
+          }}
+        >
+          <a href={imageUrl}>
+            <span>{artifactName}</span>
+            <img className='artifact-image' src={imageUrl} />
+          </a>
+        </Grid>
       );
     } else {
       return <div key={artifactName}></div>;
@@ -63,7 +83,7 @@ class RunView extends React.Component {
         <Typography component="h2" variant="h5">
           {this.props.match.checkName} - {this.props.match.environmentName} - {this.props.match.runTimestamp}
         </Typography>
-        <Grid container spacing={3}>
+        <Grid container spacing={3} sx={{textAlign: 'left'}}>
           <Grid
             item
             xs={12} md={12} lg={10} xl={8}
@@ -71,33 +91,26 @@ class RunView extends React.Component {
             <Typography component="h4" variant="h5">
               Log
             </Typography>
-            <div style={{ height: 800, width: '100%' }}>
-                <code style={{textAlign: 'left'}}>
-                  <pre>{this.state.log}</pre>
-                </code>
-            </div>
+            <code>
+              <pre>{this.state.log}</pre>
+            </code>
           </Grid>
 
           <Grid
             item
-            xs={12} md={12} lg={10} xl={8}
-            sx={{
-              '& .artifact-image': {
-                borderColor: 'black',
-                borderStyle: 'solid',
-                borderWidth: '1px',
-
-                maxHeight: '400px',
-                maxWidth: '30%'
-              }
-            }}
+            xs={12} md={12} lg={12} xl={12}
           >
             <Typography component="h4" variant="h5">
               Screenshots
             </Typography>
-            <div style={{ height: 800, width: '100%' }}>
-                {this.state.run.artifacts.map((val) => this.screenshotFromArtifact(val))}
-            </div>
+            <Grid
+              item
+              container
+              spacing={4}
+              xs={12} md={12} lg={12} xl={12}
+            >
+              {this.state.run.artifacts.map((val) => this.screenshotFromArtifact(val))}
+            </Grid>
           </Grid>
         </Grid>
       </Container>
