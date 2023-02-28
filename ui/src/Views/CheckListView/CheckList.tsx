@@ -31,21 +31,22 @@ class CheckList extends React.Component {
 
   retrieveChecks() {
     checkService.getAll().then((checksRes) => {
-      let checks = checksRes.data;
-      let checkData = [];
-      checks.forEach((check) => {
-        checkService.getResultsByCheckNameAndEnvironment(check.name, check.environment).then((statusRes) => {
-          checkData.push({
-            name: check.name,
-            environment: check.environment,
-            average_success: statusRes.data.average_success,
-            latest_status: statusRes.data.latest_status
+      let promises = checksRes.data.map((check) => {
+        return new Promise((resolve, reject) => {
+          checkService.getResultsByCheckNameAndEnvironment(check.name, check.environment).then((statusRes) => {
+            resolve({
+              name: check.name,
+              environment: check.environment,
+              average_success: statusRes.data.average_success,
+              latest_status: statusRes.data.latest_status
+            });
           });
-        }).then(() => {
-          this.setState({checks: checkData});
         });
-      })
-    })
+      });
+      Promise.all(promises).then((checkData) => {
+        this.setState({checks: checkData});
+      });
+    });
   }
 
   onRowClick(val: any) {
@@ -55,9 +56,9 @@ class CheckList extends React.Component {
   render() {
     return (
         <PageLayout>
-          <Container  maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+          <Container  maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
             <Grid container spacing={3}>
-              <Grid item xs={12} md={8} lg={8}>
+              <Grid item xs={12} md={12} lg={10} xl={8}>
                 <div style={{ height: 400, width: '100%' }}>
                   <DataGrid
                     rows={this.state.checks}
