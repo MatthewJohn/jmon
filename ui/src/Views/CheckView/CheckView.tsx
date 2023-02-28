@@ -2,7 +2,7 @@
 import { Typography } from '@mui/material';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
-import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import * as React from 'react';
 import runService from '../../run.service.tsx';
 import { withRouter } from '../../withRouter';
@@ -38,7 +38,7 @@ class CheckView extends React.Component {
   }
 
   retrieveRuns() {
-    runService.getByCheck(this.props.match.checkName, this.props.match.environmentName).then((runRes) => {
+    new runService().getByCheck(this.props.match.checkName, this.props.match.environmentName).then((runRes) => {
       this.setState({
         runs: Object.keys(runRes.data).map((key) => {return {timestamp: key, result: runRes.data[key]}})
       });

@@ -8,4 +8,4 @@ class CheckService {
   }
 }
 
-export default new CheckService();
+export default CheckService;

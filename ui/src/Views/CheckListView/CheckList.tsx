@@ -1,9 +1,8 @@
 
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
-import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import * as React from 'react';
-import { redirect } from 'react-router-dom';
 import checkService from '../../check.service.tsx';
 import { withRouter } from '../../withRouter';
 
@@ -31,10 +30,11 @@ class CheckList extends React.Component {
   }
 
   retrieveChecks() {
-    checkService.getAll().then((checksRes) => {
+    const checkServiceIns = new checkService();
+    checkServiceIns.getAll().then((checksRes) => {
       let promises = checksRes.data.map((check) => {
         return new Promise((resolve, reject) => {
-          checkService.getResultsByCheckNameAndEnvironment(check.name, check.environment).then((statusRes) => {
+          checkServiceIns.getResultsByCheckNameAndEnvironment(check.name, check.environment).then((statusRes) => {
             resolve({
               name: check.name,
               environment: check.environment,

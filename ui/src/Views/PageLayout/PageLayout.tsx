@@ -1,12 +1,7 @@
 
 import * as React from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { AppBar, Badge, Box, CssBaseline, Divider, Drawer, IconButton, List, ListItemButton, ListItemIcon, ListItemText, Toolbar, Typography } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import DomainIcon from '@mui/icons-material/Domain';
+import { AppBar, Box, CssBaseline, Toolbar, Typography } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 
 class PageLayout extends React.Component {
