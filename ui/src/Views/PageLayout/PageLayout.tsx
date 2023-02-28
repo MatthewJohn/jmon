@@ -7,6 +7,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import DomainIcon from '@mui/icons-material/Domain';
+import { Outlet } from 'react-router-dom';
 
 class PageLayout extends React.Component {
 
@@ -68,7 +69,7 @@ class PageLayout extends React.Component {
             }}
           >
             <Toolbar />
-            {this.props.children}
+            <Outlet />
 
           </Box>
         </Box>

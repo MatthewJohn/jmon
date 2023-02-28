@@ -5,8 +5,6 @@ import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
 import * as React from 'react';
 import checkService from '../../check.service.tsx';
 
-import PageLayout from '../PageLayout/PageLayout.tsx';
-
 
 const columns: GridColDef[] = [
   { field: 'environment', headerName: 'Environment', width: 200 },
@@ -54,26 +52,25 @@ class CheckList extends React.Component {
   }
 
   render() {
+    console.log("rendering")
     return (
-        <PageLayout>
-          <Container  maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={12} lg={10} xl={8}>
-                <div style={{ height: 400, width: '100%' }}>
-                  <DataGrid
-                    rows={this.state.checks}
-                    columns={columns}
-                    //pageSize={5}
-                    //rowsPerPageOptions={[5]}
-                    getRowId={(row: any) =>  row.name + row.environment}
-                    onRowClick={this.onRowClick}
-                    //checkboxSelection
-                  />
-                </div>
-              </Grid>
-            </Grid>
-          </Container>
-        </PageLayout>
+      <Container  maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={12} lg={10} xl={8}>
+            <div style={{ height: 400, width: '100%' }}>
+              <DataGrid
+                rows={this.state.checks}
+                columns={columns}
+                //pageSize={5}
+                //rowsPerPageOptions={[5]}
+                getRowId={(row: any) =>  row.name + row.environment}
+                onRowClick={this.onRowClick}
+                //checkboxSelection
+              />
+            </div>
+          </Grid>
+        </Grid>
+      </Container>
     );
   }
 }
