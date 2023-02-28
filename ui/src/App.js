@@ -6,6 +6,7 @@ import PageLayout from './Views/PageLayout/PageLayout.tsx';
 import CheckList from './Views/CheckListView/CheckList.tsx';
 import NotFound from './Views/NotFoundView/NotFound.tsx';
 import CheckView from './Views/CheckView/CheckView.tsx';
+import RunView from './Views/RunView/RunView.tsx';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route index element={<CheckList />} />
           <Route path="checks" element={<CheckList />} />
           <Route path="checks/:checkName/environments/:environmentName" element={<CheckView />} />
+          <Route path="checks/:checkName/environments/:environmentName/runs/:runTimestamp" element={<RunView />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

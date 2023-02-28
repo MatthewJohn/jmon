@@ -31,6 +31,7 @@ class CheckView extends React.Component {
       runs: []
     };
     this.retrieveRuns = this.retrieveRuns.bind(this);
+    this.onRowClick = this.onRowClick.bind(this);
   }
 
   componentDidMount() {
@@ -38,7 +39,7 @@ class CheckView extends React.Component {
   }
 
   retrieveRuns() {
-    new runService().getByCheck(this.props.match.checkName, this.props.match.environmentName).then((runRes) => {
+    new runService().listByCheck(this.props.match.checkName, this.props.match.environmentName).then((runRes) => {
       this.setState({
         runs: Object.keys(runRes.data).map((key) => {return {timestamp: key, result: runRes.data[key]}})
       });
@@ -46,7 +47,7 @@ class CheckView extends React.Component {
   }
 
   onRowClick(val: any) {
-    console.log(val)
+    this.props.navigate(`/checks/${this.props.match.checkName}/environments/${this.props.match.environmentName}/runs/${val.row.timestamp}`);
   }
 
   render() {
