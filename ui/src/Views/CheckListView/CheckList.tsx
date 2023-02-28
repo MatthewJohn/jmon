@@ -3,7 +3,9 @@ import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
 import * as React from 'react';
+import { redirect } from 'react-router-dom';
 import checkService from '../../check.service.tsx';
+import { withRouter } from '../../withRouter';
 
 
 const columns: GridColDef[] = [
@@ -21,6 +23,7 @@ class CheckList extends React.Component {
       checks: []
     };
     this.retrieveChecks = this.retrieveChecks.bind(this);
+    this.onRowClick = this.onRowClick.bind(this);
   }
 
   componentDidMount() {
@@ -48,7 +51,7 @@ class CheckList extends React.Component {
   }
 
   onRowClick(val: any) {
-    console.log(val)
+    this.props.navigate(`/checks/${val.row.name}/environments/${val.row.environment}`);
   }
 
   render() {
@@ -75,4 +78,4 @@ class CheckList extends React.Component {
   }
 }
 
-export default CheckList;
+export default withRouter(CheckList);
