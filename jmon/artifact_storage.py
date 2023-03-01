@@ -6,6 +6,7 @@ import boto3.session
 import botocore.exceptions
 
 import jmon.config
+from jmon.logger import logger
 
 
 class ArtifactStorage:
@@ -24,6 +25,33 @@ class ArtifactStorage:
         return self._s3_resource.Bucket(
             jmon.config.Config.get().AWS_BUCKET_NAME
         )
+
+    def set_bucket_lifecycle_rules(self):
+        """Set bucket lifecycle rules"""
+        if expiration := jmon.config.Config.get().RESULT_ARTIFACT_RETENTION_DAYS:
+            logger.info(f"Setting bucket expiration to {expiration} days")
+            bucket_lifecycle_configuration = self._s3_resource.BucketLifecycleConfiguration(
+                jmon.config.Config.get().AWS_BUCKET_NAME)
+
+            response = bucket_lifecycle_configuration.put(
+                LifecycleConfiguration={
+                    'Rules': [
+                        {
+                            'Expiration': {
+                                'Days': expiration
+                            },
+                            'Filter': {
+                                'Prefix': ''
+                            },
+                            'ID': 'DeleteExpiredArtifacts',
+                            'Status': 'Enabled'
+                        }
+                    ]
+                }
+            )
+            logger.debug(f"Got response: {response}")
+        else:
+            logger.info(f"Bucket expiration not set... skipping")
 
     def upload_file(self, path, content=None, source_path=None):
         """Upload log to s3"""
