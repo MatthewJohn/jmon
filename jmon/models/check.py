@@ -169,15 +169,8 @@ class Check(jmon.database.Base):
 
     def delete(self):
         """Delete check"""
-
-        # Delete from schedule, if it exists
-        try:
-            entry = RedBeatSchedulerEntry.from_key(key=self.redis_schedule_key, app=app)
-            entry.delete()
-        except KeyError:
-            logger.warn(
-                f"Could not find schedule for check during deletion: {self.name} - {self.environment.name}"
-            )
+        # Delete schedule
+        self.delete_schedule()
 
         # Delete from database
         session = jmon.database.Database.get_session()
@@ -270,10 +263,12 @@ class Check(jmon.database.Base):
         """De-register from schedule"""
         # Delete from schedule, if it exists
         try:
-            entry = RedBeatSchedulerEntry.from_key(key=f"redbeat:check_{self.name}", app=app)
+            entry = RedBeatSchedulerEntry.from_key(key=self.redis_schedule_key, app=app)
             entry.delete()
+            return True
         except KeyError:
-            pass
+            logger.warn("Schedule could not be found during deletion")
+            return False
 
     def get_result_key(self):
         """Get redis key prefix for results."""
