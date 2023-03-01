@@ -237,6 +237,9 @@ class Check(jmon.database.Base):
                     entry.options.get('headers') != options['headers'] or
                     entry.options.get('exchange') != options['exchange']):
                 # Update interval and set directive to save
+                logger.debug(f"Header match: {entry.options.get('headers') == options['headers']}: {entry.options.get('headers')}, {options['headers']}")
+                logger.debug(f"Exchange match: {entry.options.get('exchange') == options['exchange']}: {entry.options.get('exchange')}, {options['exchange']}")
+                logger.debug(f"Schedule entry match: {entry.schedule.run_every == interval.run_every}: {entry.schedule.run_every}, {interval.run_every}")
                 logger.debug("Interval/options need updating")
                 entry.schedule.run_every = interval.run_every
                 entry.options.update(options)
