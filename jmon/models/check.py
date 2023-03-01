@@ -216,7 +216,8 @@ class Check(jmon.database.Base):
 
         options = {
             'headers': headers,
-            'exchange': 'check'
+            'exchange': 'check',
+            "exchange_type": "headers"
         }
 
         interval_seconds = self.get_interval()
@@ -228,7 +229,8 @@ class Check(jmon.database.Base):
             logger.debug("Found existing schedule for task")
             if (entry.schedule.run_every != interval.run_every or
                     entry.options.get('headers') != options['headers'] or
-                    entry.options.get('exchange') != options['exchange']):
+                    entry.options.get('exchange') != options['exchange'] or
+                    entry.options.get('exchange_type') != options['exchange_type']):
                 # Update interval and set directive to save
                 logger.debug(f"Header match: {entry.options.get('headers') == options['headers']}: {entry.options.get('headers')}, {options['headers']}")
                 logger.debug(f"Exchange match: {entry.options.get('exchange') == options['exchange']}: {entry.options.get('exchange')}, {options['exchange']}")
