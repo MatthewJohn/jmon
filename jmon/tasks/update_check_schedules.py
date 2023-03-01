@@ -13,10 +13,10 @@ def update_check_schedules():
     """Add task schedules for each check in database."""
     checks = jmon.models.Check.get_all()
     for check in checks:
-        logger.debug(f"Processing check: {check.name}")
+        logger.debug(f"Processing check: {check.name}, environment: {check.environment.name}")
         if check.enabled:
             if check.upsert_schedule():
-                logger.info(f"Added/updated schedule for {check.name}")
+                logger.info(f"Added/updated schedule for {check.name}, {check.environment.name}")
 
     # Clear down session
     jmon.database.Database.clear_session()
