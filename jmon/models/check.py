@@ -172,7 +172,7 @@ class Check(jmon.database.Base):
 
         # Delete from schedule, if it exists
         try:
-            entry = RedBeatSchedulerEntry.from_key(key=f"redbeat:check_{self.name}", app=app)
+            entry = RedBeatSchedulerEntry.from_key(key=self.redis_schedule_key, app=app)
             entry.delete()
         except KeyError:
             pass
