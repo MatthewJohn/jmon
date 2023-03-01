@@ -175,7 +175,9 @@ class Check(jmon.database.Base):
             entry = RedBeatSchedulerEntry.from_key(key=self.redis_schedule_key, app=app)
             entry.delete()
         except KeyError:
-            pass
+            logger.warn(
+                f"Could not find schedule for check during deletion: {self.name} - {self.environment.name}"
+            )
 
         # Delete from database
         session = jmon.database.Database.get_session()
