@@ -51,9 +51,11 @@ class Config:
     SCREENSHOT_ON_FAILURE_DEFAULT = os.environ.get('SCREENSHOT_ON_FAILURE_DEFAULT', 'True').lower() == 'true'
 
     # Set these retentions to 0 to disable.
+    # Result artifact retention will replace any pre-existing S3 bucket policies - set to 0 if you are using a custom policy.
     # Default result retentions are set to 1 year
     QUEUE_TASK_RESULT_RETENTION_MINS = int(os.environ.get("QUEUE_TASK_RESULT_RETENTION", "1440"))
     RESULT_RETENTION_MINS = int(os.environ.get("RESULT_RETENTION_MINS", "525600"))
+    RESULT_ARTIFACT_RETENTION_DAYS = int(os.environ.get("RESULT_ARTIFACT_RETENTION_DAYS", "365"))
 
     @classmethod
     def get(cls):
