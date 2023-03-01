@@ -238,7 +238,7 @@ class Check(jmon.database.Base):
                     entry.options.get('exchange') != options['exchange']):
                 # Update interval and set directive to save
                 logger.debug("Interval/options need updating")
-                entry.interval = interval
+                entry.schedule.run_every = interval.run_every
                 entry.options.update(options)
 
                 needs_to_save = True
