@@ -35,6 +35,10 @@ def perform_check(self, check_name, environment_name):
         if not check:
             raise Exception("Could not find check")
 
+        if not check.enabled:
+            logger.warn("Check is disabled, but schedule has not been updated... skipping")
+            return
+
         # Create run and mark as started
         run = Run(check)
         run.start()
