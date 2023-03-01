@@ -39,17 +39,19 @@ def perform_check(self, check_name, environment_name):
         run = Run(check)
         run.start()
 
-        runner = Runner()
+        try:
+            runner = Runner()
 
-        status = StepStatus.FAILED
-        status = runner.perform_check(run=run)
+            status = StepStatus.FAILED
+            status = runner.perform_check(run=run)
+        except Exception as exc:
+            run.logger.error(f"An internal/uncaught error occured: {exc}")
+            raise
 
-    except Exception as exc:
-        run.logger.error(f"An internal/uncaught error occured: {exc}")
-        raise
+        finally:
+            run.end(run_status=status)
 
     finally:
-        run.end(run_status=status)
         jmon.database.Database.clear_session()
 
     return (status == StepStatus.SUCCESS)
