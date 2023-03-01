@@ -6,7 +6,7 @@ from kombu import Queue, Exchange, binding
 from redbeat.schedulers import RedBeatConfig
 
 from jmon.logger import logger
-
+import jmon.config
 
 redis_url = f"{os.environ.get('REDIS_TYPE')}://{os.environ.get('REDIS_USERNAME')}:{os.environ.get('REDIS_PASSWORD')}@{os.environ.get('REDIS_HOST')}:{os.environ.get('REDIS_PORT')}/{os.environ.get('REDIS_INSTANCE')}"
 broker_url = f"{os.environ.get('BROKER_TYPE')}://{os.environ.get('BROKER_USERNAME')}:{os.environ.get('BROKER_PASSWORD')}@{os.environ.get('BROKER_HOST')}:{os.environ.get('BROKER_PORT')}/{os.environ.get('BROKER_INSTANCE')}"
@@ -18,6 +18,7 @@ app = Celery(
 )
 
 app.conf.task_default_queue = 'default'
+app.conf.result_expires = jmon.config.Config.get().QUEUE_TASK_RESULT_RETENTION_MINS
 
 task_exchange = Exchange('task', type='direct')
 check_exchange = Exchange('check', type='headers')
