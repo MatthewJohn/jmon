@@ -12,7 +12,7 @@ class Config:
     DATABASE_PASSWORD = os.environ.get("DB_PASSWORD")
     DATABASE_NAME = os.environ.get("DB_NAME")
 
-    DEFAULT_CHECK_INTERVAL = int(os.environ.get('DEFAULT_CHECK_INTERVAL', '20'))
+    DEFAULT_CHECK_INTERVAL = int(os.environ.get('DEFAULT_CHECK_INTERVAL', '300'))
     MAX_CHECK_INTERVAL = int(os.environ.get('MAX_CHECK_INTERVAL', '31536000'))
     MIN_CHECK_INTERVAL = int(os.environ.get('MIN_CHECK_INTERVAL', '0'))
 
