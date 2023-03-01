@@ -172,10 +172,12 @@ class Check(jmon.database.Base):
 
         # Delete from schedule, if it exists
         try:
-            entry = RedBeatSchedulerEntry.from_key(key=f"redbeat:check_{self.name}", app=app)
+            entry = RedBeatSchedulerEntry.from_key(key=self.redis_schedule_key, app=app)
             entry.delete()
         except KeyError:
-            pass
+            logger.warn(
+                f"Could not find schedule for check during deletion: {self.name} - {self.environment.name}"
+            )
 
         # Delete from database
         session = jmon.database.Database.get_session()
@@ -235,8 +237,11 @@ class Check(jmon.database.Base):
                     entry.options.get('headers') != options['headers'] or
                     entry.options.get('exchange') != options['exchange']):
                 # Update interval and set directive to save
+                logger.debug(f"Header match: {entry.options.get('headers') == options['headers']}: {entry.options.get('headers')}, {options['headers']}")
+                logger.debug(f"Exchange match: {entry.options.get('exchange') == options['exchange']}: {entry.options.get('exchange')}, {options['exchange']}")
+                logger.debug(f"Schedule entry match: {entry.schedule.run_every == interval.run_every}: {entry.schedule.run_every}, {interval.run_every}")
                 logger.debug("Interval/options need updating")
-                entry.interval = interval
+                entry.schedule.run_every = interval.run_every
                 entry.options.update(options)
 
                 needs_to_save = True
