@@ -5,8 +5,8 @@ class CheckService {
     return client.get("/checks");
   }
 
-  get(name) {
-    return client.get(`/checks/${name}`);
+  getByNameAndEnvironment(name, environment) {
+    return client.get(`/checks/${name}/environments/${environment}`);
   }
 
   getResultsByCheckNameAndEnvironment(name, environment) {
