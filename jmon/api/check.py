@@ -49,7 +49,10 @@ def get_check(check_name, environment_name=None):
         "client": check.client.value if check.client else None,
         "interval": check.interval,
         "steps": check.steps,
-        "enable": check.enabled
+        "enable": check.enabled,
+        "calculated_interval": check.get_interval(),
+        "step_count": check.get_step_count(),
+        "supported_clients": [client.value for client in check.get_supported_clients()],
     }, 200
 
 @FlaskApp.app.route('/api/v1/checks/<check_name>/environments/<environment_name>', methods=["DELETE"])
