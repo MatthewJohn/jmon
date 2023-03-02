@@ -113,3 +113,36 @@ Create a new python module in `jmon/plugins/notifications` with a class inheriti
 
 For an example, see the `jmon/plugins/notifications/example_notification.py` plugin and the `jmon/plugins/notifications/slack_example.py` plugins
 
+## Production Deployment
+
+It is recommended to deploy Postgres, rabbitmq and redis is seperate high-availability clusters.
+
+If using docker-compose to deploy this, update the .env with the details of the clusters and remove these services from the docker-compose.yml file.
+
+### s3 artifact storage
+
+The artifacts can be stored in s3.
+
+Create an s3 bucket and provide the jmon containers with access to the bucket with the following permissions:
+
+ * PutObject
+ * GetObject
+ * ListObjects
+ * PutLifecycleConfiguration (unless `RESULT_ARTIFACT_RETENTION_DAYS` has been disabled)
+
+The IAM role providing permission can be attached to the EC2 instance running the containers, or to the containers directly if deploying to ECS.
+
+Update the .env (or environment variables for the containers, if the containers have been deployed in a different manor) with the S3 bucket name.
+
+
+## Local development
+
+For most local development, using docker-compose appears to work well. The containers should load quickly on a change to the `jmon` code.
+
+However, changing the `ui` code will result in a new npm build. The UI can be run locally, using:
+```
+cd ui
+# This node env will instruct the UI to make API calls to https://localhost:5000
+NODE_ENV=development npm run
+```
+
