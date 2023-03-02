@@ -18,7 +18,8 @@ def get_checks():
         [
             {
                 "name": check.name,
-                "environment": check.environment.name
+                "environment": check.environment.name,
+                "enable": check.enabled
             }
             for check in checks
         ], key=lambda x: x["name"]
