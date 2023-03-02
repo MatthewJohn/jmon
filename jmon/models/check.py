@@ -167,6 +167,19 @@ class Check(jmon.database.Base):
         """Set enabled flag"""
         self._enabled = value
 
+    def get_step_count(self):
+        """Get number of steps"""
+        def get_all_steps(parent):
+            children = parent.get_child_steps()
+            steps = children
+            for child in children:
+                steps += get_all_steps(child)
+            return steps
+
+        root_step = RootStep(run=jmon.run.Run(check=self), config=self.steps, parent=None)
+        steps = get_all_steps(root_step)
+        return len(steps)
+
     def delete(self):
         """Delete check"""
         # Delete schedule
