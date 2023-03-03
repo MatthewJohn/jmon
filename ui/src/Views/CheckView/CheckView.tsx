@@ -21,17 +21,17 @@ const columns: GridColDef[] = [
     headerName: 'Result',
     width: 400,
     valueGetter: (data) => {
-      if (data.row.result == 'SUCCESS') {
+      if (data.row.result === 'SUCCESS') {
         return 'Success'
-      } else if (data.row.result == 'FAILED') {
+      } else if (data.row.result === 'FAILED') {
         return 'Failed';
-      } else if (data.row.result == 'INTERNAL_ERROR') {
+      } else if (data.row.result === 'INTERNAL_ERROR') {
         return 'Internal error';
-      } else if (data.row.result == 'TIMEOUT') {
+      } else if (data.row.result === 'TIMEOUT') {
         return 'Timed out'
-      } else if (data.row.result == 'RUNNING') {
+      } else if (data.row.result === 'RUNNING') {
         return 'Running';
-      } else if (data.row.result == 'NOT_RUN') {
+      } else if (data.row.result === 'NOT_RUN') {
         return 'Not run'
       }
       return 'Unknown status'
