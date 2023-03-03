@@ -53,6 +53,7 @@ class CheckView extends React.Component {
   }
 
   componentDidMount() {
+    document.title = `JMon - ${this.props.match.checkName} - ${this.props.match.environmentName}`;
     this.retrieveRuns();
     this.getRunDetails();
   }
