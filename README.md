@@ -143,6 +143,7 @@ However, changing the `ui` code will result in a new npm build. The UI can be ru
 ```
 cd ui
 # This node env will instruct the UI to make API calls to https://localhost:5000
-NODE_ENV=development npm run
+npm install
+NODE_ENV=development npm start
 ```
 
