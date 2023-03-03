@@ -4,8 +4,6 @@ from jmon.client_type import ClientType
 from jmon.step_state import RequestsStepState
 from jmon.step_status import StepStatus
 from jmon.steps.checks.base_check import BaseCheck
-from jmon.logger import logger
-from jmon.utils import retry
 
 
 class JsonCheck(BaseCheck):

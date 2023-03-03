@@ -157,6 +157,8 @@ class BaseStep:
             self._logger.error("Step failed")
         elif status is StepStatus.SUCCESS:
             self._logger.info(f"Step completed")
+        elif status is StepStatus.TIMEOUT:
+            self._logger.error("Step has failed due to run timeout reached")
         self._status = status
 
     def _validate_step(self):
@@ -169,8 +171,17 @@ class BaseStep:
         for child_step in self.get_child_steps():
             child_step.validate_steps()
 
+    def has_timeout_been_reached(self):
+        """Return whether timeout has been reached"""
+        return self._run.get_remaining_time().total_seconds() <= 0
+
     def execute(self, execution_method, state: StepState):
         """Execute the current step and then execute each of the child steps"""
+        # Check for timeout in check
+        if self.has_timeout_been_reached():
+            self._set_status(StepStatus.TIMEOUT)
+            return self.status
+
         self._status = StepStatus.RUNNING
 
         self._logger.info(f"Starting {self.id}")
@@ -178,7 +189,9 @@ class BaseStep:
 
         getattr(self, execution_method)(state=state)
 
-        if self.status is StepStatus.FAILED:
+        # If status has been changed from running,
+        # return
+        if self.status is not StepStatus.RUNNING:
             return self.status
 
         # If child steps do not form part of this step,
@@ -198,14 +211,13 @@ class BaseStep:
             state.integrate_from_child(child_state)
 
             # If child step has failed, return early
-            if child_status is StepStatus.FAILED:
+            if child_status is not StepStatus.SUCCESS:
                 break
 
         if self.CHILD_STEPS_FORM_STEP:
             # Set current step to failed if child step has failed.
-            if child_status is StepStatus.FAILED:
-                self._set_status(StepStatus.FAILED)
-            else:
-                self._set_status(StepStatus.SUCCESS)
+            self._set_status(child_status)
 
-        return (self.status if child_status is not StepStatus.FAILED else StepStatus.FAILED)
+        # Return own status if child status is success or there it none,
+        # otherwise, return child status as the outcome status
+        return (self.status if (child_status is None or child_status is StepStatus.SUCCESS) else child_status)

@@ -96,6 +96,7 @@ class Check(jmon.database.Base):
         else:
             instance.client = None
         instance.interval = int(content.get("interval", 0))
+        instance.timeout = int(content.get("timeout", 0))
 
         # Create root step and perform check to ensure
         # steps are valid
@@ -123,6 +124,7 @@ class Check(jmon.database.Base):
     name = sqlalchemy.Column(jmon.database.Database.GeneralString, nullable=False)
     screenshot_on_error = sqlalchemy.Column(sqlalchemy.Boolean)
     interval = sqlalchemy.Column(sqlalchemy.Integer)
+    timeout = sqlalchemy.Column(sqlalchemy.Integer)
     client = sqlalchemy.Column(sqlalchemy.Enum(ClientType), default=None)
     _steps = sqlalchemy.Column(jmon.database.Database.LargeString, name="steps")
     _enabled = sqlalchemy.Column(sqlalchemy.Boolean, default=True, name="enabled")
@@ -293,11 +295,21 @@ class Check(jmon.database.Base):
         """Return interval of check, based on custom definition, global min/max and default interval"""
         config = jmon.config.Config.get()
         # If the interval has been set on the check
-        if self.interval != 0:
+        if self.interval:
             return max(min(self.interval, config.MAX_CHECK_INTERVAL), config.MIN_CHECK_INTERVAL)
 
         # Return default check interval
         return config.DEFAULT_CHECK_INTERVAL
+
+    def get_timeout(self):
+        """Return timout of check, based on custom definition, global min/max and default interval"""
+        config = jmon.config.Config.get()
+        # If the timeout has been set on the check
+        if self.timeout:
+            return max(min(self.timeout, config.MAX_CHECK_TIMEOUT), config.MIN_CHECK_TIMEOUT)
+
+        # Return default check timeout
+        return config.DEFAULT_CHECK_TIMEOUT
 
     def get_supported_clients(self):
         """Get supported clients"""

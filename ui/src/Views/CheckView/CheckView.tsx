@@ -21,8 +21,22 @@ const columns: GridColDef[] = [
     headerName: 'Result',
     width: 400,
     valueGetter: (data) => {
-      return data.row.result === true ? 'Success' : data.row.result === false ? 'Failed' : 'Running'}
+      if (data.row.result == 'SUCCESS') {
+        return 'Success'
+      } else if (data.row.result == 'FAILED') {
+        return 'Failed';
+      } else if (data.row.result == 'INTERNAL_ERROR') {
+        return 'Internal error';
+      } else if (data.row.result == 'TIMEOUT') {
+        return 'Timed out'
+      } else if (data.row.result == 'RUNNING') {
+        return 'Running';
+      } else if (data.row.result == 'NOT_RUN') {
+        return 'Not run'
+      }
+      return 'Unknown status'
     }
+  }
 ];
 
 class CheckView extends React.Component {
@@ -132,7 +146,7 @@ class CheckView extends React.Component {
                     sortModel: [{ field: 'timestamp', sort: 'desc' }],
                   },
                 }}
-                getRowClassName={(params) => `check-result-row--${params.row.result === true ? 'success' : params.row.result === false ? 'failed' : 'running'}`}
+                getRowClassName={(params) => `check-result-row--${params.row.result === "SUCCESS" ? 'success' : (['FAILED', 'TIMEOUT', 'INTERNAL_ERROR'].indexOf(params.row.result) !== -1) ? 'failed' : 'running'}`}
               />
             </div>
           </Grid>

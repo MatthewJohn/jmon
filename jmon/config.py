@@ -16,6 +16,10 @@ class Config:
     MAX_CHECK_INTERVAL = int(os.environ.get('MAX_CHECK_INTERVAL', '31536000'))
     MIN_CHECK_INTERVAL = int(os.environ.get('MIN_CHECK_INTERVAL', '0'))
 
+    DEFAULT_CHECK_TIMEOUT = int(os.environ.get('DEFAULT_CHECK_TIMEOUT', '60'))
+    MAX_CHECK_TIMEOUT = int(os.environ.get('MAX_CHECK_TIMEOUT', '300'))
+    MIN_CHECK_TIMEOUT = int(os.environ.get('MIN_CHECK_TIMEOUT', '1'))
+
     # Default to 1 week for checks to expire in UI
     UI_RESULT_EXPIRE = int(os.environ.get("UI_RESULT_EXPIRE", "604800"))
 

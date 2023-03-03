@@ -15,6 +15,6 @@ def get_check_runs(check_name, environment_name):
         return error, 404
 
     return {
-        run.timestamp_id: run.success
+        run.timestamp_id: run.status.value
         for run in Run.get_by_check(check=check)
     }, 200
