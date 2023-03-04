@@ -232,7 +232,8 @@ class Check(jmon.database.Base):
         options = {
             'headers': headers,
             'exchange': 'check',
-            "exchange_type": "headers"
+            "exchange_type": "headers",
+            "expires": jmon.config.Config.get().MAX_CHECK_QUEUE_TIME
         }
 
         interval_seconds = self.get_interval()
@@ -245,11 +246,13 @@ class Check(jmon.database.Base):
             if (entry.schedule.run_every != interval.run_every or
                     entry.options.get('headers') != options['headers'] or
                     entry.options.get('exchange') != options['exchange'] or
-                    entry.options.get('exchange_type') != options['exchange_type']):
+                    entry.options.get('exchange_type') != options['exchange_type'] or
+                    entry.options.get('expires') != options['expires']):
                 # Update interval and set directive to save
                 logger.debug(f"Header match: {entry.options.get('headers') == options['headers']}: {entry.options.get('headers')}, {options['headers']}")
                 logger.debug(f"Exchange match: {entry.options.get('exchange') == options['exchange']}: {entry.options.get('exchange')}, {options['exchange']}")
                 logger.debug(f"Schedule entry match: {entry.schedule.run_every == interval.run_every}: {entry.schedule.run_every}, {interval.run_every}")
+                logger.debug(f"Schedule entry match: {entry.options.get('expires') == options['expires']}: {entry.options.get('expires')}, {options['expires']}")
                 logger.debug("Interval/options need updating")
                 entry.schedule.run_every = interval.run_every
                 entry.options.update(options)
