@@ -7,7 +7,7 @@ from jmon.step_state import SeleniumStepState
 from jmon.step_status import StepStatus
 from jmon.steps.actions.base_action import BaseAction
 from jmon.logger import logger
-from jmon.utils import retry
+from jmon.utils import RetryStatus, retry
 
 
 class TypeAction(BaseAction):
@@ -47,6 +47,9 @@ class TypeAction(BaseAction):
 
     def execute_selenium(self, state: SeleniumStepState):
         """Type text"""
-        if not self._type(state.element, self._config):
+        res = self._type(state.element, self._config, only_if=lambda: not self.has_timeout_been_reached())
+        if res is RetryStatus.ONLY_IF_CONDITION_FAILURE:
+            self._set_status(StepStatus.TIMEOUT)
+        elif res is None:
             self._set_status(StepStatus.FAILED)
             self._logger.error("Unable to type into element")

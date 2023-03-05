@@ -68,8 +68,13 @@ class Runner:
         client_type = supported_clients[0]
         run.logger.info(f"Using client: {client_type}")
 
+        # Default to failed status, assuming it will
+        # be overriden by execution method
+        status = StepStatus.FAILED
+
         if client_type is ClientType.REQUESTS:
             # Execute using requests
+            run.start_timer()
             status = run.root_step.execute(
                 execution_method='execute_requests',
                 state=RequestsStepState(None)
@@ -79,6 +84,9 @@ class Runner:
             selenium_instance = self.get_selenium_instance(client_type)
 
             root_state = SeleniumStepState(selenium_instance=selenium_instance, element=selenium_instance)
+
+            # Start timeout timer once selenium has been initialised
+            run.start_timer()
 
             try:
                 status = run.root_step.execute(

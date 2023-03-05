@@ -63,7 +63,7 @@ class Run(jmon.database.Base):
     # Datetime timestamp of check
     timestamp = sqlalchemy.Column(sqlalchemy.DateTime, primary_key=True)
 
-    success = sqlalchemy.Column(sqlalchemy.Boolean)
+    status = sqlalchemy.Column(sqlalchemy.Enum(StepStatus), default=StepStatus.NOT_RUN)
 
     @property
     def id(self):
@@ -73,6 +73,6 @@ class Run(jmon.database.Base):
     def set_status(self, status):
         """Set success value"""
         session = jmon.database.Database.get_session()
-        self.success = bool(status is StepStatus.SUCCESS)
+        self.status = status
         session.add(self)
         session.commit()

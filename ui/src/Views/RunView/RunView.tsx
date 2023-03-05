@@ -22,6 +22,7 @@ class RunView extends React.Component {
   }
 
   componentDidMount() {
+    document.title = `JMon - ${this.props.match.checkName} - ${this.props.match.environmentName} - ${this.props.match.runTimestamp}`;
     this.retrieveRun();
   }
 

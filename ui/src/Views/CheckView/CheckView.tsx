@@ -21,8 +21,22 @@ const columns: GridColDef[] = [
     headerName: 'Result',
     width: 400,
     valueGetter: (data) => {
-      return data.row.result === true ? 'Success' : data.row.result === false ? 'Failed' : 'Running'}
+      if (data.row.result === 'SUCCESS') {
+        return 'Success'
+      } else if (data.row.result === 'FAILED') {
+        return 'Failed';
+      } else if (data.row.result === 'INTERNAL_ERROR') {
+        return 'Internal error';
+      } else if (data.row.result === 'TIMEOUT') {
+        return 'Timed out'
+      } else if (data.row.result === 'RUNNING') {
+        return 'Running';
+      } else if (data.row.result === 'NOT_RUN') {
+        return 'Not run'
+      }
+      return 'Unknown status'
     }
+  }
 ];
 
 class CheckView extends React.Component {
@@ -39,6 +53,7 @@ class CheckView extends React.Component {
   }
 
   componentDidMount() {
+    document.title = `JMon - ${this.props.match.checkName} - ${this.props.match.environmentName}`;
     this.retrieveRuns();
     this.getRunDetails();
   }
@@ -66,7 +81,8 @@ class CheckView extends React.Component {
             {name: 'Name', value: this.props.match.checkName},
             {name: 'Environment', value: this.props.match.environmentName},
             {name: 'State', value: checkRes.data.enable ? 'Enabled' : 'Disabled'},
-            {name: 'Interval', value: checkRes.data.calculated_interval + 's ' + (checkRes.data.interval == 0 ? '(default)' : '')},
+            {name: 'Interval', value: checkRes.data.calculated_interval + 's ' + (!checkRes.data.interval ? '(default)' : '')},
+            {name: 'Timeout', value: checkRes.data.calculated_timeout + 's ' + (!checkRes.data.timeout ? '(default)' : '')},
             {name: 'Client Pinning', value: checkRes.data.client ? checkRes.data.client : 'None'},
             {name: 'Supported Clients', value: checkRes.data.supported_clients.join(', ')},
             {name: 'Number of Steps', value: checkRes.data.step_count},
@@ -132,7 +148,7 @@ class CheckView extends React.Component {
                     sortModel: [{ field: 'timestamp', sort: 'desc' }],
                   },
                 }}
-                getRowClassName={(params) => `check-result-row--${params.row.result === true ? 'success' : params.row.result === false ? 'failed' : 'running'}`}
+                getRowClassName={(params) => `check-result-row--${params.row.result === "SUCCESS" ? 'success' : (['FAILED', 'TIMEOUT', 'INTERNAL_ERROR'].indexOf(params.row.result) !== -1) ? 'failed' : 'running'}`}
               />
             </div>
           </Grid>

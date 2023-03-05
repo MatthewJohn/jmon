@@ -10,7 +10,7 @@ from jmon.steps.action_step import ActionStep
 from jmon.steps.base_step import BaseStep
 from jmon.logger import logger
 from jmon.steps.check_step import CheckStep
-from jmon.utils import retry
+from jmon.utils import RetryStatus, retry
 
 
 class FindStep(BaseStep):
@@ -157,7 +157,10 @@ Actual config: {config}
     def execute_selenium(self, state: SeleniumStepState):
         """Find element on page"""
         by_type, _, value, = self._get_find_type()
-        element = self._find_element(state.element, by_type, value)
+        element = self._find_element(state.element, by_type, value, only_if=lambda: not self.has_timeout_been_reached())
+        if element is RetryStatus.ONLY_IF_CONDITION_FAILURE:
+            self._set_status(StepStatus.TIMEOUT)
+
         if not element:
             self._set_status(StepStatus.FAILED)
         state.element = element

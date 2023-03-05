@@ -96,6 +96,7 @@ class Check(jmon.database.Base):
         else:
             instance.client = None
         instance.interval = int(content.get("interval", 0))
+        instance.timeout = int(content.get("timeout", 0))
 
         # Create root step and perform check to ensure
         # steps are valid
@@ -123,6 +124,7 @@ class Check(jmon.database.Base):
     name = sqlalchemy.Column(jmon.database.Database.GeneralString, nullable=False)
     screenshot_on_error = sqlalchemy.Column(sqlalchemy.Boolean)
     interval = sqlalchemy.Column(sqlalchemy.Integer)
+    timeout = sqlalchemy.Column(sqlalchemy.Integer)
     client = sqlalchemy.Column(sqlalchemy.Enum(ClientType), default=None)
     _steps = sqlalchemy.Column(jmon.database.Database.LargeString, name="steps")
     _enabled = sqlalchemy.Column(sqlalchemy.Boolean, default=True, name="enabled")
@@ -230,7 +232,8 @@ class Check(jmon.database.Base):
         options = {
             'headers': headers,
             'exchange': 'check',
-            "exchange_type": "headers"
+            "exchange_type": "headers",
+            "expires": jmon.config.Config.get().MAX_CHECK_QUEUE_TIME
         }
 
         interval_seconds = self.get_interval()
@@ -243,11 +246,13 @@ class Check(jmon.database.Base):
             if (entry.schedule.run_every != interval.run_every or
                     entry.options.get('headers') != options['headers'] or
                     entry.options.get('exchange') != options['exchange'] or
-                    entry.options.get('exchange_type') != options['exchange_type']):
+                    entry.options.get('exchange_type') != options['exchange_type'] or
+                    entry.options.get('expires') != options['expires']):
                 # Update interval and set directive to save
                 logger.debug(f"Header match: {entry.options.get('headers') == options['headers']}: {entry.options.get('headers')}, {options['headers']}")
                 logger.debug(f"Exchange match: {entry.options.get('exchange') == options['exchange']}: {entry.options.get('exchange')}, {options['exchange']}")
                 logger.debug(f"Schedule entry match: {entry.schedule.run_every == interval.run_every}: {entry.schedule.run_every}, {interval.run_every}")
+                logger.debug(f"Schedule entry match: {entry.options.get('expires') == options['expires']}: {entry.options.get('expires')}, {options['expires']}")
                 logger.debug("Interval/options need updating")
                 entry.schedule.run_every = interval.run_every
                 entry.options.update(options)
@@ -293,11 +298,21 @@ class Check(jmon.database.Base):
         """Return interval of check, based on custom definition, global min/max and default interval"""
         config = jmon.config.Config.get()
         # If the interval has been set on the check
-        if self.interval != 0:
+        if self.interval:
             return max(min(self.interval, config.MAX_CHECK_INTERVAL), config.MIN_CHECK_INTERVAL)
 
         # Return default check interval
         return config.DEFAULT_CHECK_INTERVAL
+
+    def get_timeout(self):
+        """Return timout of check, based on custom definition, global min/max and default interval"""
+        config = jmon.config.Config.get()
+        # If the timeout has been set on the check
+        if self.timeout:
+            return max(min(self.timeout, config.MAX_CHECK_TIMEOUT), config.MIN_CHECK_TIMEOUT)
+
+        # Return default check timeout
+        return config.DEFAULT_CHECK_TIMEOUT
 
     def get_supported_clients(self):
         """Get supported clients"""

@@ -33,4 +33,9 @@ class SlackExample(NotificationPlugin):
         """Post slack message on success"""
         self._post_message(f"{check_name} is back to normal :checkmark:")
 
-
+    def on_check_queue_timeout(self, check_count):
+        """Handle queue timeout"""
+        self._post_message(
+            f"WARNING: {check_count} check(s) missed due to queue timeout. "
+            "Check queue size and consider increase workers."
+        )

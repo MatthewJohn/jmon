@@ -43,13 +43,15 @@ def perform_check(self, check_name, environment_name):
         run = Run(check)
         run.start()
 
+        status = StepStatus.FAILED
+
         try:
             runner = Runner()
 
-            status = StepStatus.FAILED
             status = runner.perform_check(run=run)
         except Exception as exc:
             run.logger.error(f"An internal/uncaught error occured: {exc}")
+            status = StepStatus.INTERNAL_ERROR
             raise
 
         finally:

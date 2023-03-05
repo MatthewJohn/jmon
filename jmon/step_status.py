@@ -10,3 +10,5 @@ class StepStatus(Enum):
     RUNNING = "RUNNING"
     SUCCESS = "SUCCESS"
     FAILED = "FAILED"
+    TIMEOUT = "TIMEOUT"
+    INTERNAL_ERROR = "INTERNAL_ERROR"

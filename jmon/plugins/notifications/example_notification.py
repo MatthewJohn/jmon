@@ -27,3 +27,7 @@ class ExampleNotification(NotificationPlugin):
         """Handle every run completion"""
         logger.debug(f"{check_name} has run with status: {run_status}")
         logger.debug(f"Log: {run_log}")
+
+    def on_check_queue_timeout(self, check_count):
+        """Handle queue timeout"""
+        logger.warn(f"{check_count} check(s) missed due to queue timeout")

@@ -6,7 +6,7 @@ from jmon.step_state import SeleniumStepState
 from jmon.step_status import StepStatus
 from jmon.steps.checks.base_check import BaseCheck
 from jmon.logger import logger
-from jmon.utils import retry
+from jmon.utils import RetryStatus, retry
 
 
 class TitleCheck(BaseCheck):
@@ -47,5 +47,8 @@ class TitleCheck(BaseCheck):
 
     def execute_selenium(self, state: SeleniumStepState):
         """Check page title"""
-        if not self._check_title(state.selenium_instance, self._config):
+        res = self._check_title(state.selenium_instance, self._config, only_if=lambda: not self.has_timeout_been_reached())
+        if res is RetryStatus.ONLY_IF_CONDITION_FAILURE:
+            self._set_status(StepStatus.TIMEOUT)
+        elif res is None:
             self._set_status(StepStatus.FAILED)
