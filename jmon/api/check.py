@@ -48,9 +48,11 @@ def get_check(check_name, environment_name=None):
         "name": check.name,
         "client": check.client.value if check.client else None,
         "interval": check.interval,
+        "calculated_interval": check.get_interval(),
+        "timeout": check.timeout,
+        "calculated_timeout": check.get_timeout(),
         "steps": check.steps,
         "enable": check.enabled,
-        "calculated_interval": check.get_interval(),
         "step_count": check.get_step_count(),
         "supported_clients": [client.value for client in check.get_supported_clients()],
     }, 200

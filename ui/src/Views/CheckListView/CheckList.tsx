@@ -27,6 +27,7 @@ class CheckList extends React.Component {
   }
 
   componentDidMount() {
+    document.title = `JMon`;
     this.retrieveChecks();
   }
 

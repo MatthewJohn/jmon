@@ -31,6 +31,7 @@ class Run:
         self._log_handler.setFormatter(formatter)
 
         self._root_step = RootStep(run=self, config=self.check.steps, parent=None)
+        self._start_time = None
 
     @property
     def logger(self):
@@ -67,7 +68,7 @@ class Run:
     @property
     def success(self):
         """Return success status"""
-        return self._db_run.success
+        return self._db_run.status == StepStatus.SUCCESS
 
     def register_artifact(self, path):
         """Register artifact to be uploaded to artifact storage"""
@@ -97,7 +98,7 @@ class Run:
         # Upload to storage
         artifact_storage = ArtifactStorage()
         artifact_storage.upload_file(f"{self.get_artifact_key()}/artifact.log", content=self.read_log_stream())
-        artifact_storage.upload_file(f"{self.get_artifact_key()}/status", content=str(self.success))
+        artifact_storage.upload_file(f"{self.get_artifact_key()}/status", content=self._db_run.status.value)
         for artifact_path in self._artifact_paths:
             _, artifact_name = os.path.split(artifact_path)
             artifact_storage.upload_file(f"{self.get_artifact_key()}/{artifact_name}", source_path=artifact_path)
@@ -125,7 +126,7 @@ class Run:
         if len(last_2_runs) == 1:
             is_new_state = True
         # Otherwise, set is_new_state if last two runs had differing results
-        elif last_2_runs[0].success != last_2_runs[1].success:
+        elif last_2_runs[0].status != last_2_runs[1].status:
             is_new_state = True
 
         # Create list of methods to be called on the notification plugin
@@ -149,7 +150,7 @@ class Run:
                         run_log=self.read_log_stream()
                     )
                 except Exception as exc:
-                    logger.debug(f"Failed to call notification method: {str(exc)}")
+                    logger.warn(f"Failed to call notification method: {str(exc)}")
 
     def get_run_key(self):
         """Return datetime key for run"""
@@ -164,3 +165,14 @@ class Run:
         # Reset log stream
         self._log_stream.seek(0)
         return self._log_stream.read()
+
+    def start_timer(self):
+        """Set start time of run"""
+        self._start_time = datetime.datetime.now()
+
+    def get_remaining_time(self):
+        """Get remaining time between start time of run and timeout"""
+        return (
+            (self._start_time + datetime.timedelta(seconds=self.check.get_timeout())) -
+            datetime.datetime.now()
+        )
