@@ -28,6 +28,6 @@ def get_run_details(check_name, environment_name, timestamp):
     run = jmon.run.Run(check=check, db_run=db_run)
 
     return {
-        "status": db_run.status,
+        "status": db_run.status.value,
         "artifacts": run.get_stored_artifacts()
     }
