@@ -24,6 +24,10 @@ class NotificationPlugin:
         """Handle result on run completion"""
         pass
 
+    def on_check_queue_timeout(self, check_count):
+        """Handle checks missed due to queue timeout."""
+        pass
+
 
 class NotificationLoader:
 

@@ -150,7 +150,7 @@ class Run:
                         run_log=self.read_log_stream()
                     )
                 except Exception as exc:
-                    logger.debug(f"Failed to call notification method: {str(exc)}")
+                    logger.warn(f"Failed to call notification method: {str(exc)}")
 
     def get_run_key(self):
         """Return datetime key for run"""
