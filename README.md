@@ -17,7 +17,7 @@ For a list of upcoming features and issues being worked on, please see https://g
 
 ## Getting started
 
-```
+```bash
 # Startup
 docker-compose up -d
 
@@ -93,7 +93,7 @@ steps:
 '
 ```
 
-After submitting new checks, new checks are scheduled every 2 minutes.
+After submitting new checks, new checks are scheduled every 30 seconds.
 
 Goto http://localhost:5000 to view dashboard
 
