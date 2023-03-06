@@ -93,7 +93,7 @@ steps:
 '
 ```
 
-After submitting new checks, new checks are scheduled every 2 minutes.
+After submitting new checks, new checks are scheduled every 30 seconds.
 
 Goto http://localhost:5000 to view dashboard
 
