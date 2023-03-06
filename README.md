@@ -15,6 +15,11 @@ It can currently:
 
 For a list of upcoming features and issues being worked on, please see https://gitlab.dockstudios.co.uk/mjc/jmon/-/issues
 
+## Additional sub-projects to help setup
+
+ * Terraform provider to manage JMon checks and environments - https://gitlab.dockstudios.co.uk/pub/jmon/jmon-terraform-provider
+ * Chrome browser plugin to capture user-journeys and automatically generate JMon step configuration - https://gitlab.dockstudios.co.uk/pub/jmon/jmon-chrome-plugin
+
 ## Getting started
 
 ```bash
