@@ -17,7 +17,7 @@ For a list of upcoming features and issues being worked on, please see https://g
 
 ## Getting started
 
-```
+```bash
 # Startup
 docker-compose up -d
 
