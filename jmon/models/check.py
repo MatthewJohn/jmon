@@ -187,8 +187,15 @@ class Check(jmon.database.Base):
         # Delete schedule
         self.delete_schedule()
 
-        # Delete from database
+        # Delete runs
         session = jmon.database.Database.get_session()
+        session.query(
+            jmon.models.run.Run
+        ).filter(
+            jmon.models.run.Run.check==self
+        ).delete()
+
+        # Delete from database
         session.delete(self)
         session.commit()
 
